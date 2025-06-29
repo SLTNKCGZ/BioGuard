@@ -38,4 +38,4 @@ Ayrıca uygulama, kullanıcıların ilaç kullanım düzenini desteklemek amacı
 -Çocukların aşı,ilaç ve sağlık bilgilerini takip etmek isteyen ebeveynler   
  
 ## Product Backlog Url
-[Trello Backlog Board](https://trello.com/invite/b/68619db83007a04d6667b827/ATTIfe1a29794b0214f25b24545ac8e658b4A5C423DE/bioguard)
+[Trello Backlog Board](https://trello.com/b/ZUlsNPKs/bioguard)
