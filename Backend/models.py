@@ -15,7 +15,7 @@ class User(Base):
     allergies = relationship("UserAllergy", back_populates="user")
     diseases = relationship("UserDisease", back_populates="user")
     symptoms = relationship("UserSymptom", back_populates="user")
-
+    medicines=relationship("UserMedicine", back_populates="user")
 
 class Disease(Base):
     __tablename__ = "diseases"
@@ -28,6 +28,15 @@ class Allergy(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String)
 
+class Symptom(Base):
+    __tablename__ = "symptoms"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String)
+
+class Medicine(Base):
+    __tablename__ = "medicines"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String)
 
 class UserDisease(Base):
     __tablename__ = "user_diseases"
@@ -46,13 +55,6 @@ class UserAllergy(Base):
     user = relationship("User", back_populates="allergies")
     allergy = relationship("Allergy")
 
-
-class Symptom(Base):
-    __tablename__ = "symptoms"
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String)
-
-
 class UserSymptom(Base):
     __tablename__ = "user_symptoms"
     id = Column(Integer, primary_key=True, index=True)
@@ -61,7 +63,13 @@ class UserSymptom(Base):
     user = relationship("User", back_populates="symptoms")
     symptom = relationship("Symptom")
 
-
+class UserMedicine(Base):
+    __tablename__ = "user_medicines"
+    id = Column(Integer, primary_key=True, index=True)
+    medicine_id = Column(Integer, ForeignKey("medicines.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    user = relationship("User", back_populates="medicines")
+    medicine = relationship("Medicine")
 
 
 

@@ -140,3 +140,22 @@ def delete_symptom_by_title(user: user_dependency, db: db_dependency, symptom_ti
         db.commit()
     
     return {"message": f"Symptom '{symptom_title}' removed from user"}
+
+@router.delete("/user_symptom")
+def delete_user_symptoms(db: db_dependency, user: user_dependency):
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    # Kullanıcının tüm semptomlarını bul
+    user_symptoms = db.query(UserSymptom).filter(UserSymptom.user_id == user.get("id")).all()
+    
+    if not user_symptoms:
+        raise HTTPException(status_code=404, detail="User has no symptoms")
+    
+    # Kullanıcının tüm semptomlarını sil
+    for user_symptom in user_symptoms:
+        db.delete(user_symptom)
+    
+    db.commit()
+    
+    return {"message": "All user symptoms deleted successfully"}
