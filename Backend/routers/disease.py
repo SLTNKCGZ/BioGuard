@@ -40,7 +40,7 @@ def create_disaster(input_disease: DiseaseRequest, db: db_dependency, user: user
         db.add(disease)
         db.commit()
         db.refresh(disease)
-    
+
     user_disease = db.query(UserDisease).filter(
         UserDisease.disease_id == disease.id,
         UserDisease.user_id == user.get("id")

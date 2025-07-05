@@ -14,6 +14,7 @@ class User(Base):
     hashed_password = Column(String)
     allergies = relationship("UserAllergy", back_populates="user")
     diseases = relationship("UserDisease", back_populates="user")
+    symptoms = relationship("UserSymptom", back_populates="user")
 
 
 class Disease(Base):
@@ -44,5 +45,23 @@ class UserAllergy(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User", back_populates="allergies")
     allergy = relationship("Allergy")
+
+
+class Symptom(Base):
+    __tablename__ = "symptoms"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String)
+
+
+class UserSymptom(Base):
+    __tablename__ = "user_symptoms"
+    id = Column(Integer, primary_key=True, index=True)
+    symptom_id = Column(Integer, ForeignKey("symptoms.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    user = relationship("User", back_populates="symptoms")
+    symptom = relationship("Symptom")
+
+
+
 
 
