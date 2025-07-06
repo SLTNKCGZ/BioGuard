@@ -50,7 +50,7 @@ Daily Scrum:
 
 Spring Board Update:Kartlar için gerekli açıklamalar ve dosyalar kart açıklamasında bulunmaktadır.
 
-Ürün Durumu Screenshots:Ürünün frontendi daha hazırlanmamıştır.Şu anlık sadece backend tarafında geliştirme yapılmıştır.Ürününfrontend  tasarım çalışmaları devam etmektedir.
+Ürün Durumu Screenshots:Ürünün frontendi daha hazırlanmamıştır.Şu anlık sadece backend tarafında geliştirme yapılmıştır.Ürünün frontend tasarım çalışmaları devam etmektedir.
 
 Sprint Review:Bu Sprint’te genellikle başlangıç için yapılması gereken görevler yerine getirildi.Backend tarafında kullanıcı giriş ve kayıt işlemleri,veri tabanı kaydı gibi şeyler varken frontend için figma aracılığıyla UI/UX tasarım yapılmaya çalışıldı.Figma’dan yapılan tasarım taslakları product backlog içinde kartların açıklama kısmında bulunmaktadır. Veri alanında ise veri bulunmaya çalışıldı.Tamamlanması beklenen işlerin çoğu yapılmıştır.
 Sprint review katılımcıları:Sultan Kocagöz,Hatice Bekkaya
