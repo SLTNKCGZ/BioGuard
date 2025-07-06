@@ -56,7 +56,7 @@ Sprint Board Update:Kartlar için gerekli açıklamalar ve dosyalar kart açıkl
 <img src="Images/springboard.png" alt="SB" width="600"/>  
 
 Ürün Durumu Screenshots:Ürünün frontendi daha hazırlanmamıştır.Şu anlık sadece backend tarafında geliştirme yapılmıştır.Ürünün frontend tasarım çalışmaları devam etmektedir.  
-<img src="Images/Backend.png" alt="DS" width="400"/>
+<img src="Images/Backend.png" alt="DS" width="400"/>   
 <img src="Images/urundurumu2.png" alt="DS" width="400"/>  
 
 Sprint Review:  
