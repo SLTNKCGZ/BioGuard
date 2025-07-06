@@ -40,11 +40,11 @@ Ayrıca uygulama, kullanıcıların ilaç kullanım düzenini desteklemek amacı
 [Trello Backlog Board](https://trello.com/b/ZUlsNPKs/bioguard)
 
 # Sprint 1
-Sprint Notları: Bu spring’te temeller atılmaya başlanmıştır.Uygulama için yapılan temel tasarımlar tasarım için açılan kartın açıklamasında ek olarak vardır.Ayrıca bir takım arkadaşımız takımda yer alamayacağını söyleyip gruptan çıkmıştır.
+Sprint Notları: Bu spring’te temeller atılmaya başlanmıştır.Uygulama için yapılan temel tasarımlar tasarım için açılan kartın açıklamasında ek olarak vardır.
 
-Tahmin Edilen Tamamlanacak Puan:
+Tahmin Edilen Tamamlanacak Puan: 100 Puan
 
-Tahmin mantığı:
+Tahmin mantığı: Bu sprint boyunca tamamlanan görevler düşünülerek tahmini puanın 100 olmasına karar verilmiştir.Backend görevleri 25 er puandan, gerekli verilerin araştırılması 30 puandan ve frontend için tarasım oluşturulması 30 puandan değerlendirilmiştir.
 
 Daily Scrum:
 
