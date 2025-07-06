@@ -40,29 +40,31 @@ Ayrıca uygulama, kullanıcıların ilaç kullanım düzenini desteklemek amacı
 [Trello Backlog Board](https://trello.com/b/ZUlsNPKs/bioguard)
 
 # Sprint 1
-Sprint Notları: Bu spring’te temeller atılmaya başlanmıştır.Uygulama için yapılan temel tasarımlar tasarım için açılan kartın açıklamasında ek olarak vardır.
+Sprint Notları: Bu spring’te temeller atılmaya başlanmıştır.Uygulama için yapılan temel tasarımlar tasarım için açılan kartın açıklamasında ek olarak vardır.  
 
-Tahmin Edilen Tamamlanacak Puan: 100 Puan
+Tahmin Edilen Tamamlanacak Puan: 100 Puan  
 
-Tahmin mantığı: Bu sprint boyunca tamamlanan görevler düşünülerek tahmini puanın 100 olmasına karar verilmiştir.Backend görevleri 25 er puandan, gerekli verilerin araştırılması 30 puandan ve frontend için tarasım oluşturulması 30 puandan değerlendirilmiştir.
+Tahmin mantığı: Bu sprint boyunca tamamlanan görevler düşünülerek tahmini puanın 100 olmasına karar verilmiştir.Backend görevleri 25 er puandan, gerekli verilerin araştırılması 30 puandan ve frontend için tarasım oluşturulması 30 puandan değerlendirilmiştir.  
 
-Daily Scrum: 
-<img src="Images/dailyscrum1.jpg" alt="DS" width="200"/>
-<img src="Images/dailyscrum2.jpg" alt="DS" width="200"/>
-<img src="Images/dailyscrum3.jpg" alt="DS" width="200"/>
-<img src="Images/dailyscrum4.jpg" alt="DS" width="200"/>
+Daily Scrum:  
+<img src="Images/dailyscrum1.jpg" alt="DS" width="200"/>  
+<img src="Images/dailyscrum2.jpg" alt="DS" width="200"/>  
+<img src="Images/dailyscrum3.jpg" alt="DS" width="200"/>  
+<img src="Images/dailyscrum4.jpg" alt="DS" width="200"/>  
 
-Sprint Board Update:Kartlar için gerekli açıklamalar ve dosyalar kart açıklamasında bulunmaktadır. 
-<img src="Images/springboard.png" alt="SB" width="600"/>
+Sprint Board Update:Kartlar için gerekli açıklamalar ve dosyalar kart açıklamasında bulunmaktadır.   
+<img src="Images/springboard.png" alt="SB" width="600"/>  
 
 Ürün Durumu Screenshots:Ürünün frontendi daha hazırlanmamıştır.Şu anlık sadece backend tarafında geliştirme yapılmıştır.Ürünün frontend tasarım çalışmaları devam etmektedir.
-<img src="Images/Backend.png" alt="DS" width="600"/>
-<img src="Images/urundurumu2.png" alt="DS" width="600"/>
+<img src="Images/Backend.png" alt="DS" width="400"/>  
+<img src="Images/urundurumu2.png" alt="DS" width="400"/>  
 
-Sprint Review:Bu Sprint’te genellikle başlangıç için yapılması gereken görevler yerine getirildi.Backend tarafında kullanıcı giriş ve kayıt işlemleri,veri tabanı kaydı gibi şeyler varken frontend için figma aracılığıyla UI/UX tasarım yapılmaya çalışıldı.Figma’dan yapılan tasarım taslakları product backlog içinde kartların açıklama kısmında bulunmaktadır. Veri alanında ise veri bulunmaya çalışıldı.Tamamlanması beklenen işlerin çoğu yapılmıştır.
-Sprint review katılımcıları:Sultan Kocagöz,Hatice Bekkaya
+Sprint Review:  
+Bu Sprint’te genellikle başlangıç için yapılması gereken görevler yerine getirildi.Backend tarafında kullanıcı giriş ve kayıt işlemleri,veri tabanı kaydı gibi şeyler varken frontend için figma aracılığıyla UI/UX tasarım yapılmaya çalışıldı.Figma’dan yapılan tasarım taslakları product backlog içinde kartların açıklama kısmında bulunmaktadır. Veri alanında ise veri bulunmaya çalışıldı.Tamamlanması beklenen işlerin çoğu yapılmıştır.  
+Sprint review katılımcıları:Sultan Kocagöz,Hatice Bekkaya  
 
-Sprint Retrospective:Bir sonraki Sprint’te daha aktif olma kararı alınmıştır.Projenin ilerleyişi için daha fazla araştırma ile daha iyi temeller atmaya karar verilmiştir. 
+Sprint Retrospective:  
+Bir sonraki Sprint’te daha aktif olma kararı alınmıştır.Projenin ilerleyişi için daha fazla araştırma ile daha iyi temeller atmaya karar verilmiştir.   
 
 
 
