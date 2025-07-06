@@ -47,10 +47,10 @@ Tahmin Edilen Tamamlanacak Puan: 100 Puan
 Tahmin mantığı: Bu sprint boyunca tamamlanan görevler düşünülerek tahmini puanın 100 olmasına karar verilmiştir.Backend görevleri 25 er puandan, gerekli verilerin araştırılması 30 puandan ve frontend için tarasım oluşturulması 30 puandan değerlendirilmiştir.  
 
 Daily Scrum:  
-<img src="Images/dailyscrum1.jpg" alt="DS" width="200"/>  
-<img src="Images/dailyscrum2.jpg" alt="DS" width="200"/>  
-<img src="Images/dailyscrum3.jpg" alt="DS" width="200"/>  
-<img src="Images/dailyscrum4.jpg" alt="DS" width="200"/>  
+<img src="Images/dailyscrum1.jpg" alt="DS" width="200"/>
+<img src="Images/dailyscrum2.jpg" alt="DS" width="200"/>
+<img src="Images/dailyscrum3.jpg" alt="DS" width="200"/>
+<img src="Images/dailyscrum4.jpg" alt="DS" width="200"/>   
 
 Sprint Board Update:Kartlar için gerekli açıklamalar ve dosyalar kart açıklamasında bulunmaktadır.   
 <img src="Images/springboard.png" alt="SB" width="600"/>  
