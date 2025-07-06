@@ -4,7 +4,6 @@ BioGuards
 # Takım Üyeleri
 -Sultan Kocagöz  :Product Owner / Developer   
 -Hatice Bekkaya  :Scrum Master / Developer   
--Hülya Hare      :Developer   
 -Emirhan Topçu   :Developer   
 -Hakan Ertürk    :Developer   
 
@@ -39,3 +38,28 @@ Ayrıca uygulama, kullanıcıların ilaç kullanım düzenini desteklemek amacı
  
 ## Product Backlog Url
 [Trello Backlog Board](https://trello.com/b/ZUlsNPKs/bioguard)
+
+# Sprint 1
+Sprint Notları: Bu spring’te temeller atılmaya başlanmıştır.Uygulama için yapılan temel tasarımlar tasarım için açılan kartın açıklamasında ek olarak vardır.Ayrıca bir takım arkadaşımız takımda yer alamayacağını söyleyip gruptan çıkmıştır.
+
+Tahmin Edilen Tamamlanacak Puan:
+
+Tahmin mantığı:
+
+Daily Scrum:
+
+Spring Board Update:Kartlar için gerekli açıklamalar ve dosyalar kart açıklamasında bulunmaktadır.
+
+Ürün Durumu Screenshots:Ürünün frontendi daha hazırlanmamıştır.Şu anlık sadece backend tarafında geliştirme yapılmıştır.Ürünün frontend tasarım çalışmaları devam etmektedir.
+
+Sprint Review:Bu Sprint’te genellikle başlangıç için yapılması gereken görevler yerine getirildi.Backend tarafında kullanıcı giriş ve kayıt işlemleri,veri tabanı kaydı gibi şeyler varken frontend için figma aracılığıyla UI/UX tasarım yapılmaya çalışıldı.Figma’dan yapılan tasarım taslakları product backlog içinde kartların açıklama kısmında bulunmaktadır. Veri alanında ise veri bulunmaya çalışıldı.Tamamlanması beklenen işlerin çoğu yapılmıştır.
+Sprint review katılımcıları:Sultan Kocagöz,Hatice Bekkaya
+
+Sprint Retrospective:Bir sonraki Sprint’te daha aktif olma kararı alınmıştır.Projenin ilerleyişi için daha fazla araştırma ile daha iyi temeller atmaya karar verilmiştir. 
+
+
+
+
+
+
+
