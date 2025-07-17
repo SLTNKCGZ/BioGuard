@@ -20,6 +20,8 @@ class CreateUserRequest(BaseModel):
     firstName: str
     lastName: str
     password: str
+    gender: str
+    birthdate: datetime
 
 class Token(BaseModel):
     token: str
@@ -44,7 +46,9 @@ def create_user(createUser:CreateUserRequest,db:db_dependency):
         email=createUser.email,
         first_name=createUser.firstName,
         last_name=createUser.lastName,
-        hashed_password=bcrypt_context.hash(createUser.password)
+        hashed_password=bcrypt_context.hash(createUser.password),
+        gender=createUser.gender,
+        birthdate=createUser.birthdate
     )
     db.add(user)
     db.commit()
@@ -139,7 +143,21 @@ def delete_user(user: Annotated[dict, Depends(get_current_user)], db: db_depende
     db.commit()
     return {"message": "User deleted successfully"}
 
-
+@router.get("/me")
+def get_me(db: db_dependency, user: Annotated[dict, Depends(get_current_user)]):
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    user_obj = db.query(User).filter(User.id == user.get("id")).first()
+    if user_obj is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return {
+        "username": user_obj.username,
+        "email": user_obj.email,
+        "firstName": user_obj.first_name,
+        "lastName": user_obj.last_name,
+        "gender": user_obj.gender,
+        "birthdate": user_obj.birthdate.isoformat() if user_obj.birthdate else "",
+    }
 
 
 

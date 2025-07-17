@@ -67,7 +67,7 @@ def get_allergies(user: user_dependency, db: db_dependency):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     
     # Pydantic model ile serialize etmek daha iyi olur
-    return [allergy.title for allergy in user_obj.allergies]
+    return [user_allergy.allergy.title for user_allergy in user_obj.allergies]
 
 
 @router.put("/update")

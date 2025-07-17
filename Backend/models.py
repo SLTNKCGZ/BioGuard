@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String,ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -12,6 +12,8 @@ class User(Base):
     first_name = Column(String)
     last_name = Column(String)
     hashed_password = Column(String)
+    gender = Column(String)
+    birthdate= Column(DateTime)
     allergies = relationship("UserAllergy", back_populates="user")
     diseases = relationship("UserDisease", back_populates="user")
     symptoms = relationship("UserSymptom", back_populates="user")

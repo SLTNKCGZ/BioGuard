@@ -61,7 +61,7 @@ def get_medicines(user: user_dependency, db: db_dependency):
     if user_obj is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     # Pydantic model ile serialize etmek daha iyi olur
-    return [medicine.title for medicine in user_obj.medicines]
+    return [user_medicine.medicine.title for user_medicine in user_obj.diseases]
 
 @router.put("/update")
 def update_medicine(medicine: MedicineRequest, db: db_dependency, user: user_dependency):
