@@ -73,8 +73,7 @@ Tahmin Edilen Tamamlanacak Puan: 80 Puan
 
 Tahmin mantığı: Bu sprint boyunca tamamlanan görevlere göre tahmini puanın 80 olmasına karar verilmiştir.Frontend tasarım kodları ayrı görevler olarak oluşturulup her biri 20 puan üzerinden değerlendirilmiştir.
 
-Daily Scrum: 
-
+Daily Scrum:  
 <img src="Images/Sprint 2/dailyscrum5.jpg" alt="DS" width="200"/>
 <img src="Images/Sprint 2/dailyscrum6.jpg" alt="DS" width="200"/>
 <img src="Images/Sprint 2/dailyscrum7.jpg" alt="DS" width="200"/>
