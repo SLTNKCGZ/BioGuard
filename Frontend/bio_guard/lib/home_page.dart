@@ -6,7 +6,6 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       body: SafeArea(
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 24),
@@ -27,15 +26,13 @@ class HomePage extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const Text.rich(
-                TextSpan(
-                  text: 'Kullanıcı',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    decoration: TextDecoration.underline,
-                    color: Colors.black,
-                  ),
+              const Text(
+                'Kullanıcı',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                  color: Colors.black,
                 ),
               ),
               const SizedBox(height: 32),
@@ -54,9 +51,11 @@ class HomePage extends StatelessWidget {
                       ),
                       child: Center(
                         child: Image.asset(
-                          'lib/assets/icon_$index.png', // İkon dosyaları: icon_0.png, icon_1.png, ...
+                          'assets/icon_$index.png', // DÜZELTİLDİ
                           width: 48,
                           height: 48,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.image_not_supported, size: 48),
                         ),
                       ),
                     );
@@ -68,6 +67,7 @@ class HomePage extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 0, // DÜZELTİLDİ
         selectedItemColor: Colors.purple,
         unselectedItemColor: Colors.grey,
         backgroundColor: const Color(0xFFF2D2F2),
