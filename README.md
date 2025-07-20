@@ -82,7 +82,7 @@ Sprint Board Update:Kartlar için gerekli açıklamalar ve dosyalar kart açıkl
 Sprint Review:  
 Bu Sprint’te ileriye dönük araştırmalar yapılıp genel olarak frontend çalışmaları yapılmıştır.Figmadan yapılan tasarım çalışmalarımız iptal edilip yeni bir yol çizilmiştir.Bu sürece flutterla devam edileceği kararlaştırılıp ilgili sayfalar flutter aracılığı ile oluşturulmaya başlanmıştır. 
 
-Sprint review katılımcıları:
+Sprint review katılımcıları:Hatice Bekkaya,Sultan Kocagöz
 
 Sprint Retrospective:  
 Bir sonraki Sprint’te daha aktif olma kararı alınmıştır.Projenin ilerleyişi için daha fazla araştırma ile daha iyi temeller atmaya karar verilmiştir.
