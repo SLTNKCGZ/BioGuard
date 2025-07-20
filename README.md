@@ -85,11 +85,11 @@ Sprint Board Update:Kartlar için gerekli açıklamalar ve dosyalar kart açıkl
 
 Ürün Durumu Screenshots:   
 <img src="Images/Sprint 2/ProductStatus1.png" alt="SB" width="200"/>
-<img src="Images/Sprint 2/ProductStatus1.png" alt="SB" width="200"/>
-<img src="Images/Sprint 2/ProductStatus1.png" alt="SB" width="200"/>
-<img src="Images/Sprint 2/ProductStatus1.png" alt="SB" width="200"/>
-<img src="Images/Sprint 2/ProductStatus1.png" alt="SB" width="200"/>
-<img src="Images/Sprint 2/ProductStatus1.png" alt="SB" width="200"/>   
+<img src="Images/Sprint 2/ProductStatus2.png" alt="SB" width="200"/>
+<img src="Images/Sprint 2/ProductStatus3.png" alt="SB" width="200"/>
+<img src="Images/Sprint 2/ProductStatus4.png" alt="SB" width="200"/>
+<img src="Images/Sprint 2/ProductStatus5.png" alt="SB" width="200"/>
+<img src="Images/Sprint 2/ProductStatus6.png" alt="SB" width="200"/>   
 Sprint Review:  
 Bu Sprint’te ileriye dönük araştırmalar yapılıp genel olarak frontend çalışmaları yapılmıştır.Figmadan yapılan tasarım çalışmalarımız iptal edilip yeni bir yol çizilmiştir.Bu sürece flutter ile devam edileceği kararlaştırılıp ilgili sayfalar flutter aracılığı ile oluşturulmaya başlanmıştır. 
 
