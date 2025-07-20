@@ -47,17 +47,17 @@ Tahmin Edilen Tamamlanacak Puan: 100 Puan
 Tahmin mantığı: Bu sprint boyunca tamamlanan görevler düşünülerek tahmini puanın 100 olmasına karar verilmiştir.Backend görevleri 25 er puandan, gerekli verilerin araştırılması 30 puandan ve frontend için tasarım oluşturulması 30 puandan değerlendirilmiştir.  
 
 Daily Scrum:  
-<img src="Images/Sprint1/dailyscrum1.jpg" alt="DS" width="200"/>
-<img src="Images/Sprint1/dailyscrum2.jpg" alt="DS" width="200"/>
-<img src="Images/Sprint1/dailyscrum3.jpg" alt="DS" width="200"/>
-<img src="Images/Sprint1/dailyscrum4.jpg" alt="DS" width="200"/>   
+<img src="Images/Sprint 1/dailyscrum1.jpg" alt="DS" width="200"/>
+<img src="Images/Sprint 1/dailyscrum2.jpg" alt="DS" width="200"/>
+<img src="Images/Sprint 1/dailyscrum3.jpg" alt="DS" width="200"/>
+<img src="Images/Sprint 1/dailyscrum4.jpg" alt="DS" width="200"/>   
 
 Sprint Board Update:Kartlar için gerekli açıklamalar ve dosyalar kart açıklamasında bulunmaktadır.   
-<img src="Images/Sprint1/springboard.png" alt="SB" width="600"/>  
+<img src="Images/Sprint 1/springboard.png" alt="SB" width="600"/>  
 
 Ürün Durumu Screenshots:Ürünün frontendi daha hazırlanmamıştır.Şu anlık sadece backend tarafında geliştirme yapılmıştır.Ürünün frontend tasarım çalışmaları devam etmektedir.  
-<img src="Images/Sprint1/Backend.png" alt="DS" width="400"/>   
-<img src="Images/Sprint1/urundurumu2.png" alt="DS" width="400"/>  
+<img src="Images/Sprint 1/Backend.png" alt="DS" width="400"/>   
+<img src="Images/Sprint 1/urundurumu2.png" alt="DS" width="400"/>  
 
 Sprint Review:  
 Bu Sprint’te genellikle başlangıç için yapılması gereken görevler yerine getirildi.Backend tarafında kullanıcı giriş ve kayıt işlemleri,veri tabanı kaydı gibi şeyler varken frontend için figma aracılığıyla UI/UX tasarım yapılmaya çalışıldı.Figma’dan yapılan tasarım taslakları product backlog içinde kartların açıklama kısmında bulunmaktadır. Veri alanında ise veri bulunmaya çalışıldı.Tamamlanması beklenen işlerin çoğu yapılmıştır.  
@@ -75,21 +75,21 @@ Tahmin mantığı: Bu sprint boyunca tamamlanan görevlere göre tahmini puanın
 
 Daily Scrum: 
 
-<img src="Images/Sprint2/dailyscrum5.jpg" alt="DS" width="200"/>
-<img src="Images/Sprint2/dailyscrum6.jpg" alt="DS" width="200"/>
-<img src="Images/Sprint2/dailyscrum7.jpg" alt="DS" width="200"/>
-<img src="Images/Sprint2/dailyscrum8.jpg" alt="DS" width="200"/>   
+<img src="Images/Sprint 2/dailyscrum5.jpg" alt="DS" width="200"/>
+<img src="Images/Sprint 2/dailyscrum6.jpg" alt="DS" width="200"/>
+<img src="Images/Sprint 2/dailyscrum7.jpg" alt="DS" width="200"/>
+<img src="Images/Sprint 2/dailyscrum8.jpg" alt="DS" width="200"/>   
 
 Sprint Board Update:Kartlar için gerekli açıklamalar ve dosyalar kart açıklamasında bulunmaktadır.
-<img src="Images/Sprint2/springboard2.jpg" alt="SB" width="600"/> 
+<img src="Images/Sprint 2/springboard2.jpg" alt="SB" width="600"/> 
 
 Ürün Durumu Screenshots:   
-<img src="Images/Sprint2/ProductStatus1.png" alt="SB" width="200"/>
-<img src="Images/Sprint2/ProductStatus1.png" alt="SB" width="200"/>
-<img src="Images/Sprint2/ProductStatus1.png" alt="SB" width="200"/>
-<img src="Images/Sprint2/ProductStatus1.png" alt="SB" width="200"/>
-<img src="Images/Sprint2/ProductStatus1.png" alt="SB" width="200"/>
-<img src="Images/Sprint2/ProductStatus1.png" alt="SB" width="200"/>   
+<img src="Images/Sprint 2/ProductStatus1.png" alt="SB" width="200"/>
+<img src="Images/Sprint 2/ProductStatus1.png" alt="SB" width="200"/>
+<img src="Images/Sprint 2/ProductStatus1.png" alt="SB" width="200"/>
+<img src="Images/Sprint 2/ProductStatus1.png" alt="SB" width="200"/>
+<img src="Images/Sprint 2/ProductStatus1.png" alt="SB" width="200"/>
+<img src="Images/Sprint 2/ProductStatus1.png" alt="SB" width="200"/>   
 Sprint Review:  
 Bu Sprint’te ileriye dönük araştırmalar yapılıp genel olarak frontend çalışmaları yapılmıştır.Figmadan yapılan tasarım çalışmalarımız iptal edilip yeni bir yol çizilmiştir.Bu sürece flutter ile devam edileceği kararlaştırılıp ilgili sayfalar flutter aracılığı ile oluşturulmaya başlanmıştır. 
 
