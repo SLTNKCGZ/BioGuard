@@ -108,29 +108,69 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
         print(f"JWT Error: {e}")  # Debug için
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
+
+from pydantic import BaseModel
+from typing import Optional
+
+
+class UpdateUserRequest(BaseModel):
+    username: Optional[str] = None
+    firstName: Optional[str] = None
+    lastName: Optional[str] = None
+    email: Optional[str] = None
+    gender: Optional[str] = None
+    birthdate: Optional[str] = None
+    password: Optional[str] = None
+
+
 @router.put("/update")
 def update_user(
-    user: Annotated[dict, Depends(get_current_user)],
-    updateUser: CreateUserRequest,
-    db: db_dependency
+        user: Annotated[dict, Depends(get_current_user)],
+        updateUser: UpdateUserRequest,
+        db: db_dependency
 ):
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
     update = db.query(User).filter(User.username == user.get("username")).first()
     if update is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    update.first_name = updateUser.firstName
-    update.last_name = updateUser.lastName
-    update.hashed_password = bcrypt_context.hash(updateUser.password)
-    update.email = updateUser.email
 
-    if update.username != updateUser.username:
-        if db.query(User).filter(User.username == updateUser.username).first():
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username already exists")
-        update.username = updateUser.username
-    db.commit()
-    return {"message": "User updated successfully"}
+    if updateUser.firstName is not None:
+        update.first_name = updateUser.firstName
+
+    if updateUser.lastName is not None:
+        update.last_name = updateUser.lastName
+
+    if updateUser.email is not None:
+        update.email = updateUser.email
+
+    if updateUser.gender is not None:
+        update.gender = updateUser.gender
+
+    if updateUser.birthdate is not None:
+        try:
+            update.birthdate = datetime.strptime(updateUser.birthdate, "%Y-%m-%d").date()
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+
+    if updateUser.username is not None:
+        if update.username != updateUser.username:
+            existing_user = db.query(User).filter(User.username == updateUser.username).first()
+            if existing_user:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username already exists")
+            update.username = updateUser.username
+
+    if updateUser.password is not None:
+        update.hashed_password = bcrypt_context.hash(updateUser.password)
+
+    try:
+        db.commit()
+        return {"message": "User updated successfully"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 @router.delete("/delete")
 def delete_user(user: Annotated[dict, Depends(get_current_user)], db: db_dependency):

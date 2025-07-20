@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'bottomNavigationBar.dart';
+
+import 'login_page.dart';
 
 class ProfilePage extends StatefulWidget {
   final String username;
@@ -8,6 +14,7 @@ class ProfilePage extends StatefulWidget {
   final String lastName;
   final String gender;
   final String birthdate;
+  final String token;
 
   const ProfilePage({
     Key? key,
@@ -17,6 +24,7 @@ class ProfilePage extends StatefulWidget {
     required this.lastName,
     required this.gender,
     required this.birthdate,
+    required this.token,
   }) : super(key: key);
 
   @override
@@ -26,7 +34,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   String? _profileImagePath;
   int? _editingIndex; // Sadece bir alan düzenlenebilir
-
+  String? get token => widget.token;
   late List<TextEditingController> _controllers;
 
   @override
@@ -48,6 +56,94 @@ class _ProfilePageState extends State<ProfilePage> {
       c.dispose();
     }
     super.dispose();
+  }
+
+  // Backend'e güncelleme gönderen fonksiyon
+  Future<void> _updateProfile(int fieldIndex) async {
+    try {
+      final fieldNames = ['username', 'firstName', 'lastName', 'email', 'gender', 'birthdate'];
+      final fieldName = fieldNames[fieldIndex];
+      final newValue = _controllers[fieldIndex].text;
+
+      final response = await http.put(
+        Uri.parse('http://10.0.2.2:8000/auth/update'),
+        headers: {
+          'Authorization': 'Bearer ${widget.token}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          fieldName: newValue,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$fieldName başarıyla güncellendi')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Güncelleme başarısız: ${response.body}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Hata: $e')),
+      );
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    
+
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 150,
+          child: Column(
+            children: [
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('Galeriden Seç'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final XFile? image = await picker.pickImage(
+                    source: ImageSource.gallery,
+                    maxWidth: 512,
+                    maxHeight: 512,
+                    imageQuality: 80,
+                  );
+                  if (image != null) {
+                    setState(() {
+                      _profileImagePath = image.path;
+                    });
+                  }
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Kamera ile Çek'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final XFile? image = await picker.pickImage(
+                    source: ImageSource.camera,
+                    maxWidth: 512,
+                    maxHeight: 512,
+                    imageQuality: 80,
+                  );
+                  if (image != null) {
+                    setState(() {
+                      _profileImagePath = image.path;
+                    });
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
 
@@ -77,15 +173,17 @@ class _ProfilePageState extends State<ProfilePage> {
                 Center(
                   child: Stack(
                     children: [
-                      const CircleAvatar(
+                      CircleAvatar(
                         radius: 48,
-                        backgroundImage:AssetImage('lib/assets/profile.jpg') as ImageProvider,
+                        backgroundImage: _profileImagePath != null
+                            ? FileImage(File(_profileImagePath!))
+                            : const AssetImage('lib/assets/profile.jpg') as ImageProvider,
                       ),
                       Positioned(
                         bottom: 0,
                         right: 0,
                         child: GestureDetector(
-                          onTap: ()=>{} ,
+                          onTap: _pickImage,
                           child: const CircleAvatar(
                             backgroundColor: Colors.white,
                             radius: 18,
@@ -102,19 +200,20 @@ class _ProfilePageState extends State<ProfilePage> {
                   return Card(
                     margin: const EdgeInsets.symmetric(vertical: 8),
                     child: ListTile(
-                      title: _editingIndex == index
+                      subtitle: _editingIndex == index
                           ? TextField(
                               controller: _controllers[index],
                               autofocus: true,
-                              onSubmitted: (_) {
+                              onSubmitted: (_) async {
                                 setState(() {
                                   _editingIndex = null;
                                 });
-                                // Burada backend'e güncelleme isteği gönderebilirsin
+                                // Backend'e güncelleme isteği gönder
+                                await _updateProfile(index);
                               },
                             )
                           : Text(_controllers[index].text),
-                      subtitle: Text(_labels[index]),
+                      title: Text(_labels[index]),
                       trailing: PopupMenuButton<String>(
                         onSelected: (value) {
                           if (value == 'edit') {
@@ -135,8 +234,18 @@ class _ProfilePageState extends State<ProfilePage> {
                 }),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () {
-                    // Çıkış yap
+                  onPressed: () async {
+                    final response=await http.delete(
+                      Uri.parse('http://10.0.2.2:8000/auth/delete'),
+                      headers: {
+                        'Authorization':'Bearer $token',
+                        'Content-type':'application/json'
+                      }
+                    );
+                    if(response.statusCode==200){
+                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LoginPage()), (route)=>false);
+                    }
+
                   },
                   child: Text('Çıkış Yap'),
                 ),
@@ -144,7 +253,8 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
       ),
-      
+
+
     );
   }
 }

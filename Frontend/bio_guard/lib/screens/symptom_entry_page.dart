@@ -1,91 +1,129 @@
+import 'package:bio_guard/screens/bottomNavigationBar.dart';
 import 'package:flutter/material.dart';
 
 class SymptomEntryPage extends StatefulWidget {
-  const SymptomEntryPage({Key? key}) : super(key: key);
+  const SymptomEntryPage({super.key});
 
   @override
   State<SymptomEntryPage> createState() => _SymptomEntryPageState();
 }
 
 class _SymptomEntryPageState extends State<SymptomEntryPage> {
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _symptomController = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
+  bool _isSubmitted = false;
+
+  void _submitSymptom() {
+    if (_controller.text.trim().isEmpty) return;
+
+    setState(() {
+      _isSubmitted = true;
+      // _controller.clear(); // Eğer gönderimden sonra temizlensin istersen açabilirsin.
+    });
+
+    // TODO: Yapay zekaya gönderim işlemi burada gerçekleşecek.
+    print("Gönderilen metin: ${_controller.text}");
+  }
+
+  void _editSymptom() {
+    setState(() {
+      _isSubmitted = false;
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Şikayet Girişi'),
+        title: const Text('Semptom Girişi'),
         backgroundColor: Colors.blueAccent,
         elevation: 0,
+        foregroundColor: Colors.black,
       ),
-      backgroundColor: const Color(0xFFF5F6FA),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text(
-                  'Şikayetinizi detaylıca yazınız:',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
-                Expanded(
-                  child: TextFormField(
-                    controller: _symptomController,
-                    maxLines: null,
-                    expands: true,
-                    decoration: InputDecoration(
-                      hintText: 'Örneğin: Son 2 gündür baş ağrım var ve ateşim yükseldi...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      fillColor: Colors.white,
-                      filled: true,
+        child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.blue[50],
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
+                        )
+                      ],
                     ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Lütfen şikayetinizi giriniz';
-                      }
-                      return null;
-                    },
+                    child: Column(
+                      children: [
+                        TextField(
+                          controller: _controller,
+                          enabled: !_isSubmitted,
+                          maxLines: 6,
+                          decoration: const InputDecoration(
+                            hintText: "Bugünkü semptomlarınızı detaylıca yazın...",
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            if (_isSubmitted)
+                              IconButton(
+                                icon: const Icon(Icons.edit, color: Colors.blue),
+                                onPressed: _editSymptom,
+                                tooltip: "Düzenle",
+                              ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.send,
+                                color: _isSubmitted ? Colors.grey : Colors.blue,
+                              ),
+                              onPressed: _isSubmitted ? null : _submitSymptom,
+                              tooltip: "Gönder",
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  height: 56,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+
+                  const SizedBox(height: 20),
+
+                  // Geri bildirim
+                  if (_isSubmitted)
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[300],
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      elevation: 4,
-                    ),
-                    icon: const Icon(Icons.send, color: Colors.white),
-                    label: const Text(
-                      'AI’ya Gönder',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                    ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        // Burada AI'ya gönderme işlemi yapılacak
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Şikayetiniz AI’ya gönderildi!')),
-                        );
-                        _symptomController.clear();
-                      }
-                    },
-                  ),
-                ),
-              ],
+                      child: const Row(
+                        children: [
+                          Icon(Icons.check_circle, color: Colors.blue),
+                          SizedBox(width: 10),
+                          Expanded(child: Text("Semptomlarınız başarıyla gönderildi.")),
+                        ],
+                      ),
+                    )
+                ],
+              ),
             ),
           ),
         ),
-      ),
     );
   }
 }

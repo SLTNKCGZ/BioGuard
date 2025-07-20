@@ -4,6 +4,8 @@ import 'package:bio_guard/screens/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'symptom_entry_page.dart';
 import 'health_datas_page.dart';
+import 'bottomNavigationBar.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class HomePage extends StatefulWidget {
   final String token;
@@ -14,7 +16,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
 
   String? username;
   String? email;
@@ -59,171 +61,244 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _pages = [
-      _HomeContent(),
-      SymptomEntryPage(),
-      HealthDatasPage(token: widget.token),
-      ProfilePage(
-        username: username ?? '',
-        email: email ?? '',
-        firstName: firstName ?? '',
-        lastName: lastName ?? '',
-        gender: gender ?? '',
-        birthdate: birthdate ?? '',
-      ),
-    ];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    _pages = [
-      _HomeContent(),
-      SymptomEntryPage(),
-      HealthDatasPage(token: widget.token),
-      ProfilePage(
-        username: username ?? '',
-        email: email ?? '',
-        firstName: firstName ?? '',
-        lastName: lastName ?? '',
-        gender: gender ?? '',
-        birthdate: birthdate ?? '',
-      ),
-    ];
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        selectedItemColor: Colors.blueAccent,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Ana Sayfa',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.edit_note),
-            label: 'Şikayet',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.health_and_safety),
-            label: 'Sağlık Bilgileri',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profil',
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HomeContent extends StatelessWidget {
-  const _HomeContent({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildHomeContent() {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('BioGuard'),
+        title: Text('Merhaba ${firstName}'),
         backgroundColor: Colors.blueAccent,
         elevation: 0,
-      ),
-      backgroundColor: const Color(0xFFF5F6FA),
-      body: SafeArea(
-        child: const SingleChildScrollView(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Hoş geldiniz!',
-                style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+        foregroundColor: Colors.black,
+        leading: Builder(
+          builder: (context) =>
+              IconButton(
+                icon: const Icon(Icons.menu, color: Colors.black),
+                onPressed: () => Scaffold.of(context).openDrawer(),
               ),
-              SizedBox(height: 16),
-              Text(
-                'BioGuard ile sağlığınızı koruyun ve takip edin. Aşağıda sizin için bazı önemli sağlık bilgileri ve öneriler bulabilirsiniz:',
-                style: TextStyle(fontSize: 16),
-              ),
-              SizedBox(height: 24),
-              _InfoCard(
-                title: 'Düzenli Kontroller',
-                content: 'Yılda en az bir kez genel sağlık kontrolü yaptırmak, hastalıkların erken teşhisi için önemlidir.',
-                icon: Icons.medical_services,
-              ),
-              _InfoCard(
-                title: 'Sağlıklı Beslenme',
-                content: 'Her gün taze sebze ve meyve tüketmeye, işlenmiş gıdalardan uzak durmaya özen gösterin.',
-                icon: Icons.restaurant,
-              ),
-              _InfoCard(
-                title: 'Hareketli Yaşam',
-                content: 'Günde en az 30 dakika yürüyüş veya egzersiz yaparak sağlığınızı destekleyin.',
-                icon: Icons.directions_walk,
-              ),
-              _InfoCard(
-                title: 'Alerji ve İlaç Takibi',
-                content: 'Kullandığınız ilaçları ve alerjilerinizi kaydedin, acil durumlarda sağlık personeline kolayca bilgi verin.',
-                icon: Icons.healing,
-              ),
-              _InfoCard(
-                title: 'Şikayetlerinizi Not Edin',
-                content: 'Herhangi bir sağlık şikayetinizde, detaylıca not alıp doktorunuza danışın.',
-                icon: Icons.note_alt,
-              ),
-            ],
-          ),
         ),
       ),
-    );
-  }
-}
-
-class _InfoCard extends StatelessWidget {
-  final String title;
-  final String content;
-  final IconData icon;
-
-  const _InfoCard({required this.title, required this.content, required this.icon, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(18.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      drawer: Drawer(
+        width: MediaQuery
+            .of(context)
+            .size
+            .width * 0.7,
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: [
-            Icon(icon, size: 36, color: Colors.blueAccent),
-            const SizedBox(width: 18),
-            Expanded(
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue[600],
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Colors.blue[600]!, Colors.blue[800]!],
+                ),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text(
-                    title,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+                  const Text(
+                    'BioGuard',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   Text(
-                    content,
-                    style: const TextStyle(fontSize: 15, color: Colors.black54),
+                    'Sağlık Takip Sistemi',
+                    style: TextStyle(
+                      fontSize: 14,
+                    ),
                   ),
                 ],
               ),
             ),
+            ListTile(
+              autofocus: true,
+              leading: const Icon(Icons.account_circle),
+              title: const Text("Profil Bilgileri"),
+              onTap: () {
+                setState(() {
+                  _selectedIndex = 2; // Profil sayfasına geç
+                });
+                Navigator.pop(context); // Drawer'ı kapat
+              },
+            ),
+            const SizedBox(height: 10),
+            ListTile(
+              autofocus: true,
+              leading: const Icon(Icons.home),
+              title: const Text("Analiz Sonuçları"),
+              onTap: () {
+                Navigator.pop(context); // Önce drawer'ı kapat
+                Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => (HealthDatasPage(
+                        token: widget.token))));
+              },
+            ),
+            const SizedBox(height: 10),
+            ListTile(
+              autofocus: true,
+              leading: const Icon(Icons.library_books),
+              title: const Text("Raporlar"),
+              onTap: () {
+                Navigator.pop(context); // Önce drawer'ı kapat
+                Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => (HealthDatasPage(
+                      token: widget.token,))));
+              },
+            ),
+            const SizedBox(height: 10),
+            ListTile(
+              autofocus: true,
+              leading: const Icon(Icons.person),
+              title: const Text("İlaçlar"),
+              onTap: () {
+                Navigator.pop(context); // Önce drawer'ı kapat
+                Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => (HealthDatasPage(
+                        token: widget.token))));
+              },
+            ),
+            const SizedBox(height: 10),
+            ListTile(
+              autofocus: true,
+              leading: const Icon(Icons.person),
+              title: const Text("Alerjiler"),
+              onTap: () {
+                Navigator.pop(context); // Önce drawer'ı kapat
+                Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => (HealthDatasPage(
+                        token: widget.token))));
+              },
+            ),
+            const SizedBox(height: 10),
+            ListTile(
+              autofocus: true,
+              leading: const Icon(Icons.person),
+              title: const Text("Randevular"),
+              onTap: () {
+                Navigator.pop(context); // Önce drawer'ı kapat
+                Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => (HealthDatasPage(
+                        token: widget.token))));
+              },
+            ),
           ],
         ),
       ),
+      backgroundColor: const Color(0xFFF5F6FA),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              decoration: InputDecoration(
+                hintText: 'Sayfa içinde ara...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+            const SizedBox(height: 20),
+            TableCalendar(
+              firstDay: DateTime.utc(2000, 1, 1),
+              lastDay: DateTime.utc(2100, 12, 31),
+              focusedDay: DateTime.now(),
+              selectedDayPredicate: (day) => false,
+              onDaySelected: (selectedDay, focusedDay) {
+                // Takvim seçimi işlemleri
+              },
+              calendarFormat: CalendarFormat.month,
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              "📩 Bugün Gelen Özel Mesajlar",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            const Text("Henüz yeni bir mesajınız yok."),
+            const SizedBox(height: 20),
+            const Text(
+              "📊 Sağlık Verileri",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              height: 150,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.blue[50],
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Center(child: Text("📈 Grafik Burada Gösterilecek")),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              "🔔 Bildirimler",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange[100],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                  "Bugün için herhangi bir bildirim bulunmamaktadır."),
+            ),
+          ],
+        ),
+      ),
+
     );
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _pages = [
+      const SymptomEntryPage(),
+      _buildHomeContent(),
+      ProfilePage(
+          username: username ?? '',
+          email: email ?? '',
+          firstName: firstName ?? '',
+          lastName: lastName ?? '',
+          gender: gender ?? '',
+          birthdate: birthdate ?? '',
+          token: widget.token
+      ),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _pages = [
+      const SymptomEntryPage(),
+      _buildHomeContent(),
+      ProfilePage(
+          username: username ?? '',
+          email: email ?? '',
+          firstName: firstName ?? '',
+          lastName: lastName ?? '',
+          gender: gender ?? '',
+          birthdate: birthdate ?? '',
+          token: widget.token
+      ),
+    ];
+    return Scaffold(
+
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+
 }

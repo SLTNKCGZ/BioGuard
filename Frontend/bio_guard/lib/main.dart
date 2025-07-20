@@ -1,4 +1,6 @@
+import 'package:bio_guard/screens/profile_page.dart';
 import 'package:flutter/material.dart';
+import 'screens/home_page.dart';
 import 'screens/login_page.dart';
 import 'screens/register_page.dart';
 import 'screens/symptom_entry_page.dart';
@@ -17,7 +19,9 @@ class SaglikUygulamasi extends StatelessWidget {
       title: 'Sağlık Uygulaması',
       initialRoute: '/login',
       routes: {
-        '/login': (context) => LoginPage()
+        '/login': (context) => LoginPage(),
+        '/register': (context) => RegisterPage(),
+
       },
     );
   }
