@@ -6,7 +6,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2D2F2), // Mor kenarlık etkisi için
+      
       body: SafeArea(
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 24),
