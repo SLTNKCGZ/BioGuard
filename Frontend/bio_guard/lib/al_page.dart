@@ -71,7 +71,7 @@ class _AlPageState extends State<AlPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(
-                    width: 150,
+                    width: 200,
                     child: TextField(
                       controller: _controller,
                       decoration: InputDecoration(
@@ -81,6 +81,7 @@ class _AlPageState extends State<AlPage> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
+                      onSubmitted: (_) => _semptomEkle(),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -104,25 +105,26 @@ class _AlPageState extends State<AlPage> {
                 ),
               ),
               const SizedBox(height: 16),
-              if (_semptomListesi.isNotEmpty)
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: _semptomListesi.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(_semptomListesi[index]),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () {
-                            setState(() {
-                              _semptomListesi.removeAt(index);
-                            });
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ),
+              Expanded(
+                child: _semptomListesi.isNotEmpty
+                    ? ListView.builder(
+                        itemCount: _semptomListesi.length,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            title: Text(_semptomListesi[index]),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () {
+                                setState(() {
+                                  _semptomListesi.removeAt(index);
+                                });
+                              },
+                            ),
+                          );
+                        },
+                      )
+                    : const Center(child: Text('Henüz semptom eklenmedi')),
+              ),
             ],
           ),
         ),
