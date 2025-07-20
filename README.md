@@ -66,9 +66,24 @@ Sprint review katılımcıları:Sultan Kocagöz,Hatice Bekkaya
 Sprint Retrospective:  
 Bir sonraki Sprint’te daha aktif olma kararı alınmıştır.Projenin ilerleyişi için daha fazla araştırma ile daha iyi temeller atmaya karar verilmiştir.   
 
+# Sprint 2
+Sprint Notları: Bu sprintte ilerleyen proje süreci adına bazı değişimler yapılmıştır.Frontend tasarımında sizlerinde bilgisi dahilinde flutter kullanılmaya başlanıp önceki tasarımlar değiştirilmiştir.
 
+Tahmin Edilen Tamamlanacak Puan: 80 Puan  
 
+Tahmin mantığı: Bu sprint boyunca tamamlanan görevlere göre tahmini puanın 80 olmasına karar verilmiştir.Frontend tasarım kodları ayrı görevler olarak oluşturulup herbiri 20 puan üzerinden değerlendirilmiştir.
 
+Daily Scrum: 
 
+Sprint Board Update:Kartlar için gerekli açıklamalar ve dosyalar kart açıklamasında bulunmaktadır.
 
+Ürün Durumu Screenshots:
+
+Sprint Review:  
+Bu Sprint’te ileriye dönük araştırmalar yapılıp genel olarak frontend çalışmaları yapılmıştır.Figmadan yapılan tasarım çalışmalarımız iptal edilip yeni bir yol çizilmiştir.Bu sürece flutterla devam edileceği kararlaştırılıp ilgili sayfalar flutter aracılığı ile oluşturulmaya başlanmıştır. 
+
+Sprint review katılımcıları:
+
+Sprint Retrospective:  
+Bir sonraki Sprint’te daha aktif olma kararı alınmıştır.Projenin ilerleyişi için daha fazla araştırma ile daha iyi temeller atmaya karar verilmiştir.
 
