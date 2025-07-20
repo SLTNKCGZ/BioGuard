@@ -81,7 +81,7 @@ Daily Scrum:
 
 
 Sprint Board Update:Kartlar için gerekli açıklamalar ve dosyalar kart açıklamasında bulunmaktadır.
-
+<img src="Images/springboard2.jpg" alt="SB" width="600"/> 
 Ürün Durumu Screenshots:
 
 Sprint Review:  
