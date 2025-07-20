@@ -1,130 +1,124 @@
 import 'package:flutter/material.dart';
 
-class AlPage extends StatefulWidget {
-  const AlPage({super.key});
+class SymptomEntryPage extends StatefulWidget {
+  const SymptomEntryPage({super.key});
 
   @override
-  State<AlPage> createState() => _AlPageState();
+  State<SymptomEntryPage> createState() => _SymptomEntryPageState();
 }
 
-class _AlPageState extends State<AlPage> {
-  final List<String> _semptomListesi = [];
+class _SymptomEntryPageState extends State<SymptomEntryPage> {
   final TextEditingController _controller = TextEditingController();
+  bool _isSubmitted = false;
 
-  void _semptomEkle() {
-    final text = _controller.text.trim();
-    if (text.isNotEmpty) {
-      setState(() {
-        _semptomListesi.add(text);
-        _controller.clear();
-      });
-    }
+  void _submitSymptom() {
+    if (_controller.text.trim().isEmpty) return;
+
+    setState(() {
+      _isSubmitted = true;
+      // _controller.clear(); // Eğer gönderimden sonra temizlensin istersen açabilirsin.
+    });
+
+    // TODO: Yapay zekaya gönderim işlemi burada gerçekleşecek.
+    print("Gönderilen metin: ${_controller.text}");
   }
 
-  void _gonder() {
-    // Burada verileri bir API'ye gönderebilirsin
-    print('Gönderilen semptomlar: $_semptomListesi');
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Başarılı'),
-        content: const Text('Semptomlar gönderildi!'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Tamam'),
-          ),
-        ],
-      ),
-    );
+  void _editSymptom() {
+    setState(() {
+      _isSubmitted = false;
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF2D2F2),
-      body: SafeArea(
-        child: Container(
-          margin: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF9F1FB),
-            borderRadius: BorderRadius.circular(12),
-          ),
+    return SafeArea(
+      child: SingleChildScrollView( // Eklendi
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Başlık
+              const Text(
+                "Semptom Girişi",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Giriş alanı + butonlar
               Container(
                 padding: const EdgeInsets.all(16),
-                color: const Color(0xFFE28DE0),
-                width: double.infinity,
-                child: const Text(
-                  'Semptom Girişi',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 8,
+                      offset: Offset(0, 4),
+                    )
+                  ],
                 ),
-              ),
-              const SizedBox(height: 32),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 200,
-                    child: TextField(
+                child: Column(
+                  children: [
+                    TextField(
                       controller: _controller,
-                      decoration: InputDecoration(
-                        hintText: 'Semptom',
-                        border: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.purple),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                      enabled: !_isSubmitted,
+                      maxLines: 6,
+                      decoration: const InputDecoration(
+                        hintText: "Bugünkü semptomlarınızı detaylıca yazın...",
+                        border: OutlineInputBorder(),
                       ),
-                      onSubmitted: (_) => _semptomEkle(),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  IconButton(
-                    icon: const Icon(Icons.add, size: 32),
-                    onPressed: _semptomEkle,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 32, vertical: 12),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        if (_isSubmitted)
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            onPressed: _editSymptom,
+                            tooltip: "Düzenle",
+                          ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.send,
+                            color: _isSubmitted ? Colors.grey : Colors.green,
+                          ),
+                          onPressed: _isSubmitted ? null : _submitSymptom,
+                          tooltip: "Gönder",
+                        ),
+                      ],
+                    )
+                  ],
                 ),
-                onPressed: _gonder,
-                child: const Text(
-                  'Gönder',
-                  style: TextStyle(color: Colors.white),
-                ),
               ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: _semptomListesi.isNotEmpty
-                    ? ListView.builder(
-                        itemCount: _semptomListesi.length,
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            title: Text(_semptomListesi[index]),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () {
-                                setState(() {
-                                  _semptomListesi.removeAt(index);
-                                });
-                              },
-                            ),
-                          );
-                        },
-                      )
-                    : const Center(child: Text('Henüz semptom eklenmedi')),
-              ),
+
+              const SizedBox(height: 20),
+
+              // Geri bildirim
+              if (_isSubmitted)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.green[100],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.green),
+                      SizedBox(width: 10),
+                      Expanded(child: Text("Semptomlarınız başarıyla gönderildi.")),
+                    ],
+                  ),
+                )
             ],
           ),
         ),
