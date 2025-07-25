@@ -21,7 +21,6 @@ class SaglikUygulamasi extends StatelessWidget {
       routes: {
         '/login': (context) => LoginPage(),
         '/register': (context) => RegisterPage(),
-
       },
     );
   }

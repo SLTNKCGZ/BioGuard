@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'bottomNavigationBar.dart';
+
 
 class HealthDatasPage extends StatefulWidget {
   final String token;
-  const HealthDatasPage({Key? key, required this.token}) : super(key: key);
+  const HealthDatasPage({super.key, required this.token});
 
   @override
   State<HealthDatasPage> createState() => _HealthDatasPageState();
@@ -179,7 +179,7 @@ class _HealthDatasPageState extends State<HealthDatasPage> {
     }
   }
 
-  Widget _buildSection(String title, List<String> items, TextEditingController controller, String hint, String type) {
+  Widget _buildAddCard(TextEditingController controller, String hint, String type) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
       elevation: 4,
@@ -189,10 +189,6 @@ class _HealthDatasPageState extends State<HealthDatasPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blueAccent),
-            ),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -212,17 +208,27 @@ class _HealthDatasPageState extends State<HealthDatasPage> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     backgroundColor: Colors.blueAccent,
                   ),
-                  onPressed: () => _addItem(items, controller, type),
-                  child: const Icon(Icons.add, color: Colors.white),
+                  onPressed: () => _addItem([], controller, type),
+                  child: const Icon(Icons.add, color: Colors.white,weight: 20,size: 22,),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            if (items.isEmpty)
-              const Text('Henüz eklenmedi.', style: TextStyle(color: Colors.grey)),
-            if (items.isNotEmpty)
-              SizedBox(
-                height: 80,
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildListCard(List<String> items, String type) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: items.isEmpty
+            ? const Text('Henüz eklenmedi.', style: TextStyle(color: Colors.grey))
+            : SizedBox(
+                height: 50,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: items.length,
@@ -231,31 +237,28 @@ class _HealthDatasPageState extends State<HealthDatasPage> {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
-                        color: Colors.blue[50],
+                        color: Colors.blueAccent,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.blueAccent.withOpacity(0.3)),
+                        border: Border.all(color: Colors.blueAccent),
                       ),
                       child: Row(
                         children: [
                           Text(
                             items[index],
-                            style: const TextStyle(fontSize: 16, color: Colors.black87),
+                            style: const TextStyle(fontSize: 16, color: Colors.white,fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(width: 8),
                           GestureDetector(
                             onTap: () async {
                               if (type == 'disease') {
                                 await _deleteDisease(items[index]);
-                                await _fetchDiseases();
                               } else if (type == 'allergy') {
                                 await _deleteAllergy(items[index]);
-                                await _fetchAllergies();
                               } else if (type == 'medicine') {
                                 await _deleteMedicine(items[index]);
-                                await _fetchMedications();
                               }
                             },
-                            child: const Icon(Icons.close, size: 18, color: Colors.redAccent),
+                            child: const Icon(Icons.close, size: 20, color: Colors.black,weight: 20),
                           ),
                         ],
                       ),
@@ -263,35 +266,67 @@ class _HealthDatasPageState extends State<HealthDatasPage> {
                   },
                 ),
               ),
-          ],
-        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sağlık Bilgileri'),
-        backgroundColor: Colors.blueAccent,
-        elevation: 0,
-      ),
-      backgroundColor: const Color(0xFFF5F6FA),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              _buildSection('Hastalıklar', _diseases, _diseaseController, 'Hastalık ekle...', 'disease'),
-              _buildSection('Alerjiler', _allergies, _allergyController, 'Alerji ekle...', 'allergy'),
-              _buildSection('İlaçlar', _medications, _medicationController, 'İlaç ekle...', 'medicine'),
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Sağlık Bilgileri'),
+          backgroundColor: Colors.blue[600],
+          titleTextStyle: const TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
+          leading: const Icon(Icons.health_and_safety, color: Colors.white, size: 25),
+          bottom: const TabBar(
+            indicatorColor: Colors.white,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            tabs: [
+              Tab(text: 'Hastalıklar'),
+              Tab(text: 'Alerjiler'),
+              Tab(text: 'İlaçlar'),
             ],
           ),
         ),
+        backgroundColor: const Color(0xFFF5F6FA),
+        body: TabBarView(
+          children: [
+            // Hastalıklar
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  _buildAddCard(_diseaseController, 'Hastalık ekle...', 'disease'),
+                  _buildListCard(_diseases, 'disease'),
+                ],
+              ),
+            ),
+            // Alerjiler
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  _buildAddCard( _allergyController, 'Alerji ekle...', 'allergy'),
+                  _buildListCard(_allergies, 'allergy'),
+                ],
+              ),
+            ),
+            // İlaçlar
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  _buildAddCard(_medicationController, 'İlaç ekle...', 'medicine'),
+                  _buildListCard(_medications, 'medicine'),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
-
-
     );
   }
 }

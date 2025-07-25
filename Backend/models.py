@@ -18,6 +18,7 @@ class User(Base):
     diseases = relationship("UserDisease", back_populates="user")
     symptoms = relationship("UserSymptom", back_populates="user")
     medicines=relationship("UserMedicine", back_populates="user")
+    complaints=relationship("UserComplaint", back_populates="user")
 
 class Disease(Base):
     __tablename__ = "diseases"
@@ -39,6 +40,13 @@ class Medicine(Base):
     __tablename__ = "medicines"
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String)
+
+class Complaint(Base):
+    __tablename__ = "complaints"
+    id = Column(Integer, primary_key=True, index=True)
+    text= Column(String)
+    response= Column(String)
+    date= Column(DateTime)
 
 class UserDisease(Base):
     __tablename__ = "user_diseases"
@@ -73,5 +81,10 @@ class UserMedicine(Base):
     user = relationship("User", back_populates="medicines")
     medicine = relationship("Medicine")
 
-
-
+class UserComplaint(Base):
+    __tablename__ = "user_complaints"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id=Column(Integer, ForeignKey("users.id"))
+    complaint_id = Column(Integer, ForeignKey("complaints.id"))
+    complaint = relationship("Complaint")
+    user = relationship("User", back_populates="complaints")

@@ -71,8 +71,7 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dep
     user = authenticate(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
-    token = create_access_token(user.username, user.id, timedelta(minutes=30))
-    print(f"Generated token: {token[:20]}...")  # Debug
+    token = create_access_token(user.username, user.id, timedelta(days=365*100))
     return {"access_token": token, "token_type": "bearer"}
 
 
@@ -80,12 +79,10 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dep
 
 def authenticate(username, password,db):
     user=db.query(User).filter(User.username==username).first()
-    if not user:
-        print("User not found")
-        return False
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
     if not bcrypt_context.verify(password,user.hashed_password):
-        print("Incorrect password")
-        return False
+        raise HTTPException(status_code=401, detail="Incorrect username or password")
     return user
 
 

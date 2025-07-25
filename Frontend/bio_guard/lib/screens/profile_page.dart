@@ -3,51 +3,33 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'bottomNavigationBar.dart';
-
 import 'login_page.dart';
 
 class ProfilePage extends StatefulWidget {
-  final String username;
-  final String email;
-  final String firstName;
-  final String lastName;
-  final String gender;
-  final String birthdate;
   final String token;
 
-  const ProfilePage({
-    Key? key,
-    required this.username,
-    required this.email,
-    required this.firstName,
-    required this.lastName,
-    required this.gender,
-    required this.birthdate,
-    required this.token,
-  }) : super(key: key);
+  const ProfilePage({super.key, required this.token});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  String? _profileImagePath;
-  int? _editingIndex; // Sadece bir alan düzenlenebilir
+
+  int? _editingIndex;
   String? get token => widget.token;
   late List<TextEditingController> _controllers;
-
+  String? username;
+  String? firstName;
+  String? lastName;
+  String? email;
+  String? gender;
+  String? birthdate;
   @override
   void initState() {
     super.initState();
-    _controllers = [
-      TextEditingController(text: widget.username),
-      TextEditingController(text: widget.firstName),
-      TextEditingController(text: widget.lastName),
-      TextEditingController(text: widget.email),
-      TextEditingController(text: widget.gender),
-      TextEditingController(text: widget.birthdate),
-    ];
+    _controllers = List.generate(6, (index) => TextEditingController());
+    fetchProfileData();
   }
 
   @override
@@ -77,75 +59,23 @@ class _ProfilePageState extends State<ProfilePage> {
       );
 
       if (response.statusCode == 200) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('$fieldName başarıyla güncellendi')),
         );
       } else {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Güncelleme başarısız: ${response.body}')),
         );
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Hata: $e')),
       );
     }
   }
-
-  Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    
-
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          height: 150,
-          child: Column(
-            children: [
-              ListTile(
-                leading: Icon(Icons.photo_library),
-                title: Text('Galeriden Seç'),
-                onTap: () async {
-                  Navigator.pop(context);
-                  final XFile? image = await picker.pickImage(
-                    source: ImageSource.gallery,
-                    maxWidth: 512,
-                    maxHeight: 512,
-                    imageQuality: 80,
-                  );
-                  if (image != null) {
-                    setState(() {
-                      _profileImagePath = image.path;
-                    });
-                  }
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.camera_alt),
-                title: Text('Kamera ile Çek'),
-                onTap: () async {
-                  Navigator.pop(context);
-                  final XFile? image = await picker.pickImage(
-                    source: ImageSource.camera,
-                    maxWidth: 512,
-                    maxHeight: 512,
-                    imageQuality: 80,
-                  );
-                  if (image != null) {
-                    setState(() {
-                      _profileImagePath = image.path;
-                    });
-                  }
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
 
 
   final List<String> _labels = [
@@ -161,8 +91,10 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profil'),
-        backgroundColor: Colors.blueAccent,
+        title: const Text('Profil'),
+        backgroundColor: Colors.blue[600],
+        titleTextStyle: const TextStyle(color: Colors.white,fontSize: 25,fontWeight: FontWeight.bold),
+        leading: const Icon(Icons.account_circle,color: Colors.white,size: 25),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -170,32 +102,15 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Column(
               children: [
                 // Profil resmi
-                Center(
+                const Center(
                   child: Stack(
                     children: [
-                      CircleAvatar(
-                        radius: 48,
-                        backgroundImage: _profileImagePath != null
-                            ? FileImage(File(_profileImagePath!))
-                            : const AssetImage('lib/assets/profile.jpg') as ImageProvider,
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: GestureDetector(
-                          onTap: _pickImage,
-                          child: const CircleAvatar(
-                            backgroundColor: Colors.white,
-                            radius: 18,
-                            child: Icon(Icons.camera_alt, color: Colors.blueAccent),
-                          ),
-                        ),
-                      ),
+                      Icon(Icons.account_circle,size: 120)
                     ],
                   ),
                 ),
                 const SizedBox(height: 24),
-                // Bilgi kartları
+
                 ...List.generate(_labels.length, (index) {
                   return Card(
                     margin: const EdgeInsets.symmetric(vertical: 8),
@@ -243,11 +158,16 @@ class _ProfilePageState extends State<ProfilePage> {
                       }
                     );
                     if(response.statusCode==200){
-                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LoginPage()), (route)=>false);
+                      if (!mounted) return;
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LoginPage()),
+                        (route) => false,
+                      );
                     }
 
                   },
-                  child: Text('Çıkış Yap'),
+                  child: const Text('Çıkış Yap'),
                 ),
               ],
             ),
@@ -256,5 +176,26 @@ class _ProfilePageState extends State<ProfilePage> {
 
 
     );
+  }
+  
+  Future<void> fetchProfileData() async {
+    final response = await http.get(
+      Uri.parse('http://10.0.2.2:8000/auth/me'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-type': 'application/json'
+      }
+    );
+    if(response.statusCode==200){
+      final data=jsonDecode(response.body);
+      setState(() {
+        _controllers[0].text=data['username'];
+        _controllers[1].text=data['firstName'];
+        _controllers[2].text=data['lastName'];
+        _controllers[3].text=data['email'];
+        _controllers[4].text=data['gender'];
+        _controllers[5].text=data['birthdate'];
+      });
+    }
   }
 }

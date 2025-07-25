@@ -1,8 +1,10 @@
-import 'package:bio_guard/screens/bottomNavigationBar.dart';
 import 'package:flutter/material.dart';
 
+import 'past_complaints.dart';
+
 class SymptomEntryPage extends StatefulWidget {
-  const SymptomEntryPage({super.key});
+  const SymptomEntryPage({super.key, required this.token});
+  final String token;
 
   @override
   State<SymptomEntryPage> createState() => _SymptomEntryPageState();
@@ -11,17 +13,23 @@ class SymptomEntryPage extends StatefulWidget {
 class _SymptomEntryPageState extends State<SymptomEntryPage> {
   final TextEditingController _controller = TextEditingController();
   bool _isSubmitted = false;
+  bool _isLoading = false;
 
-  void _submitSymptom() {
+  void _submitSymptom() async {
     if (_controller.text.trim().isEmpty) return;
 
     setState(() {
-      _isSubmitted = true;
-      // _controller.clear(); // Eğer gönderimden sonra temizlensin istersen açabilirsin.
+      _isLoading = true;
     });
 
-    // TODO: Yapay zekaya gönderim işlemi burada gerçekleşecek.
-    print("Gönderilen metin: ${_controller.text}");
+    // Simulate network delay
+    await Future.delayed(const Duration(seconds: 1));
+    
+    setState(() {
+      _isSubmitted = true;
+      _isLoading = false;
+      _controller.clear();
+    });
   }
 
   void _editSymptom() {
@@ -38,92 +46,150 @@ class _SymptomEntryPageState extends State<SymptomEntryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Semptom Girişi'),
-        backgroundColor: Colors.blueAccent,
-        elevation: 0,
-        foregroundColor: Colors.black,
+        title: const Text('Semptom Bildirimi'),
+        backgroundColor: Colors.blue[500],
+        leading: const Icon(Icons.healing,color: Colors.white,size: 25),
+        titleTextStyle: const TextStyle(color: Colors.white,fontSize: 25,fontWeight: FontWeight.bold),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => PastComplaints(token: widget.token)));
+            },
+            icon: const Icon(Icons.history,color: Colors.white,size: 30),
+          ),
+        ],
       ),
+      backgroundColor: const Color(0xFFF5F6FA),
       body: SafeArea(
-        child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Başlık ve açıklama
+                Text(
+                  "Semptomunu Bildir",
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueAccent,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "Kendini nasıl hissediyorsun? Lütfen yaşadığın semptomları detaylıca yaz.",
+                  style: theme.textTheme.bodyMedium?.copyWith(color: Colors.black87),
+                ),
+                const SizedBox(height: 24),
 
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.blue[50],
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 8,
-                          offset: Offset(0, 4),
-                        )
-                      ],
-                    ),
+                // Kart
+                Card(
+                  elevation: 6,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
                         TextField(
                           controller: _controller,
-                          enabled: !_isSubmitted,
+                          enabled: !_isSubmitted && !_isLoading,
                           maxLines: 6,
-                          decoration: const InputDecoration(
-                            hintText: "Bugünkü semptomlarınızı detaylıca yazın...",
-                            border: OutlineInputBorder(),
+                          minLines: 4,
+                          decoration: InputDecoration(
+                            hintText: "Şikayetinizi detaylıca yazın...",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            filled: true,
+                            fillColor: Colors.blue[50],
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             if (_isSubmitted)
-                              IconButton(
-                                icon: const Icon(Icons.edit, color: Colors.blue),
+                              ElevatedButton.icon(
+                                icon: const Icon(Icons.edit, size: 20),
+                                label: const Text("Düzenle"),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: Colors.blueAccent,
+                                  elevation: 0,
+                                  side: const BorderSide(color: Colors.blueAccent),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
                                 onPressed: _editSymptom,
-                                tooltip: "Düzenle",
                               ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.send,
-                                color: _isSubmitted ? Colors.grey : Colors.blue,
+                            if (!_isSubmitted)
+                              ElevatedButton.icon(
+                                icon: _isLoading
+                                    ? const SizedBox(
+                                        width: 18,
+                                        height: 18,
+                                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                      )
+                                    : const Icon(Icons.send),
+                                label: const Text("Gönder"),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blueAccent,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                ),
+                                onPressed: _isLoading ? null : _submitSymptom,
                               ),
-                              onPressed: _isSubmitted ? null : _submitSymptom,
-                              tooltip: "Gönder",
-                            ),
                           ],
-                        )
+                        ),
                       ],
                     ),
                   ),
+                ),
 
-                  const SizedBox(height: 20),
+                const SizedBox(height: 28),
 
-                  // Geri bildirim
-                  if (_isSubmitted)
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.blue[300],
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Row(
-                        children: [
-                          Icon(Icons.check_circle, color: Colors.blue),
-                          SizedBox(width: 10),
-                          Expanded(child: Text("Semptomlarınız başarıyla gönderildi.")),
-                        ],
-                      ),
-                    )
-                ],
-              ),
+                // Animasyonlu başarı mesajı
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 400),
+                  child: _isSubmitted
+                      ? Container(
+                          key: const ValueKey('success'),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.green[100],
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.check_circle, color: Colors.green, size: 28),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  "Semptomlarınız başarıyla gönderildi.",
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: Colors.green[900],
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+              ],
             ),
           ),
         ),
+      ),
     );
   }
 }

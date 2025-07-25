@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key}) ;
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -57,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
                       keyboardType: TextInputType.text,
                       decoration: InputDecoration(
                         labelText: 'Kullanıcı Adı',
-                        prefixIcon: Icon(Icons.supervised_user_circle_rounded),
+                        prefixIcon: const Icon(Icons.supervised_user_circle_rounded),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -76,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
                       obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         labelText: 'Şifre',
-                        prefixIcon: Icon(Icons.lock_outline),
+                        prefixIcon: const Icon(Icons.lock_outline),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
