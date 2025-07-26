@@ -24,7 +24,7 @@ class _SymptomEntryPageState extends State<SymptomEntryPage> {
 
     // Simulate network delay
     await Future.delayed(const Duration(seconds: 1));
-    
+
     setState(() {
       _isSubmitted = true;
       _isLoading = false;

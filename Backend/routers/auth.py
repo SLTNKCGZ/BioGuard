@@ -9,6 +9,12 @@ from sqlalchemy.orm import Session
 from starlette import status
 from database import SessionLocal
 from models import User
+import random
+import string
+
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 router = APIRouter(
     prefix="/auth",
@@ -23,9 +29,6 @@ class CreateUserRequest(BaseModel):
     gender: str
     birthdate: datetime
 
-class Token(BaseModel):
-    token: str
-    type: str
 
 
 def get_db():
@@ -67,7 +70,6 @@ def create_access_token(username:str, user_id:int, expires_delta:timedelta):
 
 @router.post("/login")
 def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency):
-    print(f"Login attempt for username: {form_data.username}")  # Debug
     user = authenticate(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
@@ -195,6 +197,74 @@ def get_me(db: db_dependency, user: Annotated[dict, Depends(get_current_user)]):
         "gender": user_obj.gender,
         "birthdate": user_obj.birthdate.isoformat() if user_obj.birthdate else "",
     }
+
+
+class PasswordResetRequest(BaseModel):
+    email: str
+
+class PasswordResetVerifyRequest(BaseModel):
+    email: str
+    new_password: str
+
+reset_codes = {}
+
+class PasswordResetCodeVerifyRequest(BaseModel):
+    email: str
+    code: str
+
+@router.post("/forgot-password-verify-code")
+def forgot_password_verify_code(request: PasswordResetCodeVerifyRequest):
+    code = reset_codes.get(request.email)
+    if not code or code != request.code:
+        raise HTTPException(status_code=400, detail="Invalid or expired code")
+    return {"message": "Code is valid"}
+
+# E-posta gönderme fonksiyonu (Gmail SMTP örneği)
+SMTP_EMAIL = "sultankocagoz.448@gmail.com"  # Buraya kendi e-posta adresini yaz
+SMTP_PASSWORD = "yeoi logp qpfe dohf"         # Gmail için uygulama şifresi kullanmalısın
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
+
+def send_reset_code_email(to_email: str, code: str):
+    subject = "Şifre Sıfırlama Kodu"
+    body = f"Şifre sıfırlama kodunuz: {code}"
+    msg = MIMEMultipart()
+    msg["From"] = SMTP_EMAIL
+    msg["To"] = to_email
+    msg["Subject"] = subject
+    msg.attach(MIMEText(body, "plain"))
+    try:
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server.starttls()
+        server.login(SMTP_EMAIL, SMTP_PASSWORD)
+        server.sendmail(SMTP_EMAIL, to_email, msg.as_string())
+        server.quit()
+    except Exception as e:
+        print(f"E-posta gönderilemedi: {e}")
+        raise HTTPException(status_code=500, detail="E-posta gönderilemedi")
+
+@router.post("/forgot-password-send-code")
+def forgot_password_send_code(request: PasswordResetRequest, db: db_dependency):
+    print(request.email)
+    user = db.query(User).filter(User.email == request.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    # 6 haneli kod üret
+    code = ''.join(random.choices(string.digits, k=6))
+    reset_codes[request.email] = code
+    # Gerçek e-posta gönderimi
+    send_reset_code_email(request.email, code)
+    return {"message": "Password reset code sent to email"}
+
+@router.post("/forgot-password-verify")
+def forgot_password_verify(request: PasswordResetVerifyRequest, db: db_dependency):
+    user = db.query(User).filter(User.email == request.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user.hashed_password = bcrypt_context.hash(request.new_password)
+    db.commit()
+    del reset_codes[request.email]
+    return {"message": "Password reset successful"}
 
 
 

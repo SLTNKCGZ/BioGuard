@@ -14,11 +14,11 @@ class User(Base):
     hashed_password = Column(String)
     gender = Column(String)
     birthdate= Column(Date)
-    allergies = relationship("UserAllergy", back_populates="user")
-    diseases = relationship("UserDisease", back_populates="user")
-    symptoms = relationship("UserSymptom", back_populates="user")
-    medicines=relationship("UserMedicine", back_populates="user")
-    complaints=relationship("UserComplaint", back_populates="user")
+    allergies = relationship("UserAllergy", back_populates="user",cascade="all, delete-orphan")
+    diseases = relationship("UserDisease", back_populates="user",cascade="all, delete-orphan")
+    symptoms = relationship("UserSymptom", back_populates="user",cascade="all, delete-orphan")
+    medicines=relationship("UserMedicine", back_populates="user",cascade="all, delete-orphan")
+    complaints=relationship("UserComplaint", back_populates="user",cascade="all, delete-orphan")
 
 class Disease(Base):
     __tablename__ = "diseases"
