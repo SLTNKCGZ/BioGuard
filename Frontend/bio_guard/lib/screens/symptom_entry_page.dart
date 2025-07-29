@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'past_complaints.dart';
 
@@ -14,27 +16,79 @@ class _SymptomEntryPageState extends State<SymptomEntryPage> {
   final TextEditingController _controller = TextEditingController();
   bool _isSubmitted = false;
   bool _isLoading = false;
+  
+  // AI yanıtı için değişkenler
+  String _aiResponse = '';
+  bool _showAIResponse = false;
 
   void _submitSymptom() async {
     if (_controller.text.trim().isEmpty) return;
 
     setState(() {
       _isLoading = true;
+      _showAIResponse = false;
     });
 
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      // Backend API'sine istek gönder
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:8000/complaint/create'), // Android emülatör için
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${widget.token}',
+        },
+        body: jsonEncode({
+          'text': _controller.text.trim(),
+          'date': DateTime.now().toIso8601String(),
+        }),
+      );
 
-    setState(() {
-      _isSubmitted = true;
-      _isLoading = false;
-      _controller.clear();
-    });
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        
+        setState(() {
+          _aiResponse = data['ai_response'];
+          _isSubmitted = true;
+          _isLoading = false;
+          _showAIResponse = true;
+          _controller.clear();
+        });
+      } else {
+        // Hata durumunda
+        setState(() {
+          _isLoading = false;
+        });
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Hata: ${response.statusCode}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Bağlantı hatası: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _editSymptom() {
     setState(() {
       _isSubmitted = false;
+      _showAIResponse = false;
+      _aiResponse = '';
     });
   }
 
@@ -185,6 +239,54 @@ class _SymptomEntryPageState extends State<SymptomEntryPage> {
                         )
                       : const SizedBox.shrink(),
                 ),
+
+                // AI Yanıtı
+                if (_showAIResponse) ...[
+                  const SizedBox(height: 20),
+                  
+                  // AI Analiz Yanıtı
+                  Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.psychology, color: Colors.purple[600], size: 24),
+                              const SizedBox(width: 8),
+                              Text(
+                                'AI Analiz Sonucu',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.purple[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.purple[50],
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.purple[200]!),
+                            ),
+                            child: Text(
+                              _aiResponse,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: Colors.purple[800],
+                                height: 1.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

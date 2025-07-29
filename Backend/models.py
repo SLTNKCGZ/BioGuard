@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Date
 from sqlalchemy.orm import relationship
 
@@ -20,6 +22,7 @@ class User(Base):
     medicines=relationship("UserMedicine", back_populates="user",cascade="all, delete-orphan")
     complaints=relationship("UserComplaint", back_populates="user",cascade="all, delete-orphan")
 
+    
 class Disease(Base):
     __tablename__ = "diseases"
     id = Column(Integer, primary_key=True, index=True)
@@ -88,3 +91,4 @@ class UserComplaint(Base):
     complaint_id = Column(Integer, ForeignKey("complaints.id"))
     complaint = relationship("Complaint")
     user = relationship("User", back_populates="complaints")
+

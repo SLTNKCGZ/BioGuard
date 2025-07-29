@@ -27,6 +27,10 @@ class _PastComplaintsState extends State<PastComplaints> {
       setState(() {
         _complaints = List<Map<String, dynamic>>.from(jsonDecode(response.body));
       });
+      print('Updated complaints list: ${_complaints.length}');
+    } else {
+      print('Fetch failed with status: ${response.statusCode}');
+      print('Response body: ${response.body}');
     }
   }
 
@@ -72,6 +76,7 @@ class _PastComplaintsState extends State<PastComplaints> {
                           text: complaint['text'] ?? '',
                           date: formattedDate,
                           complimentId: complaint['id'],
+                          token: widget.token,
                         ),
                       ),
                     );
@@ -126,9 +131,7 @@ class _PastComplaintsState extends State<PastComplaints> {
                                   ),
                                 );
                                 if (confirm == true) {
-                                  setState(() {
-                                    deleteComplaint(complaint['id']);
-                                  });
+                                  await deleteComplaint(complaint['id']);
                                 }
                               },
                             ),
@@ -144,6 +147,7 @@ class _PastComplaintsState extends State<PastComplaints> {
   }
   
   Future<void> deleteComplaint(int complimentId) async {
+    print('Deleting complaint with ID: $complimentId');
     final response = await http.delete(
       Uri.parse('http://10.0.2.2:8000/complaint/complaints/$complimentId'),
       headers: {
@@ -151,18 +155,67 @@ class _PastComplaintsState extends State<PastComplaints> {
         'Content-Type': 'application/json',
       },
     );
+    print('Delete response status: ${response.statusCode}');
+    print('Delete response body: ${response.body}');
     if (response.statusCode == 200) {
+        print('Delete successful, refreshing complaints...');
         await _fetchComplaints();
+    } else {
+        print('Delete failed with status: ${response.statusCode}');
+        print('Response body: ${response.body}');
     }
   }
 
 }
 
-class ComplaintDetailPage extends StatelessWidget {
+class ComplaintDetailPage extends StatefulWidget {
   final String text;
   final String date;
   final int complimentId;
-  const ComplaintDetailPage({super.key, required this.text, required this.date,required this.complimentId});
+  final String token;
+  const ComplaintDetailPage({super.key, required this.text, required this.date, required this.complimentId, required this.token});
+
+  @override
+  State<ComplaintDetailPage> createState() => _ComplaintDetailPageState();
+}
+
+class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
+  String? aiResponse;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchComplaintDetails();
+  }
+
+  Future<void> _fetchComplaintDetails() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:8000/complaint/complaints/${widget.complimentId}'),
+        headers: {
+          'Authorization': 'Bearer ${widget.token}',
+          'Content-Type': 'application/json',
+        },
+      );
+      
+      if (response.statusCode == 200) {
+        final complaintData = jsonDecode(response.body);
+        setState(() {
+          aiResponse = complaintData['response'];
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -170,21 +223,50 @@ class ComplaintDetailPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Şikayet Detayı'),
         backgroundColor: Colors.blue[600],
+        titleTextStyle: const TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
+        iconTheme: const IconThemeData(color: Colors.white,size: 28),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              date,
+              widget.date,
               style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 16),
             ),
             const SizedBox(height: 20),
             Text(
-              text,
+              widget.text,
               style: const TextStyle(fontSize: 18),
             ),
+            const SizedBox(height: 30),
+            if (isLoading)
+              const Center(child: CircularProgressIndicator())
+            else if (aiResponse != null && aiResponse!.isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'AI Analiz Sonucu:',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey[300]!),
+                    ),
+                    child: Text(
+                      aiResponse!,
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
       ),
