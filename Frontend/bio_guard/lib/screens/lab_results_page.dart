@@ -65,13 +65,28 @@ class _LabResultsPageState extends State<LabResultsPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
-        backgroundColor: Colors.blue[600],
-        title: const Text(
-          '🧪 Tahlil Girişi',
-          style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
-        ),
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
+  backgroundColor: Colors.blue[600],
+  title: const Text(
+    '🧪 Tahlil Girişi',
+    style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+  ),
+  iconTheme: const IconThemeData(color: Colors.white),
+  actions: [
+    IconButton(
+      icon: const Icon(Icons.history),
+      tooltip: 'Geçmiş Tahliller',
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PastLabResultsPage(token: widget.token),
+          ),
+        );
+      },
+    )
+  ],
+),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -112,22 +127,6 @@ class _LabResultsPageState extends State<LabResultsPage> {
                   label: const Text("Ekle"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueAccent,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PastLabResultsPage(token: widget.token),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.history),
-                  label: const Text("Geçmiş Tahliller"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orangeAccent,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
