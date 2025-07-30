@@ -21,6 +21,7 @@ class User(Base):
     symptoms = relationship("UserSymptom", back_populates="user",cascade="all, delete-orphan")
     medicines=relationship("UserMedicine", back_populates="user",cascade="all, delete-orphan")
     complaints=relationship("UserComplaint", back_populates="user",cascade="all, delete-orphan")
+    lab_results = relationship("LabResult", back_populates="user", cascade="all, delete-orphan")
 
     
 class Disease(Base):
@@ -92,3 +93,14 @@ class UserComplaint(Base):
     complaint = relationship("Complaint")
     user = relationship("User", back_populates="complaints")
 
+class LabResult(Base):
+    __tablename__ = "lab_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    test_name = Column(String, nullable=False)
+    result = Column(Float, nullable=False)
+    unit = Column(String, nullable=True)
+    date = Column(Date, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"))
+
+    user = relationship("User", back_populates="lab_results")
