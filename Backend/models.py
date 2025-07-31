@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Date
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Date, Float
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -102,5 +102,4 @@ class LabResult(Base):
     unit = Column(String, nullable=True)
     date = Column(Date, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"))
-
     user = relationship("User", back_populates="lab_results")
