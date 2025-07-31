@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, APIRouter
 import os
 from database import Base, engine
-from routers import auth, disease, allergy, symptom, medicine, complaint
+from routers import auth, disease, allergy, symptom, medicine, complaint, lab_result
 
 app = FastAPI()
 
