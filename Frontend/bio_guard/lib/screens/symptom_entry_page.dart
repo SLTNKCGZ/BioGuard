@@ -103,7 +103,7 @@ class _SymptomEntryPageState extends State<SymptomEntryPage> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Semptom Bildirimi'),
+        title: const Text('Şikayet Bildirimi'),
         backgroundColor: Colors.blue[500],
         leading: const Icon(Icons.healing,color: Colors.white,size: 25),
         titleTextStyle: const TextStyle(color: Colors.white,fontSize: 25,fontWeight: FontWeight.bold),
@@ -127,7 +127,7 @@ class _SymptomEntryPageState extends State<SymptomEntryPage> {
               children: [
                 // Başlık ve açıklama
                 Text(
-                  "Semptomunu Bildir",
+                  "Şikayetini Bildir",
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Colors.blueAccent,

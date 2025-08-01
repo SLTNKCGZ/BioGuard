@@ -1,4 +1,5 @@
-'dart:convert'; 
+import 'dart:convert';
+import 'package:bio_guard/screens/lab_results_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:bio_guard/screens/profile_page.dart';
 import 'package:flutter/material.dart';
@@ -69,6 +70,7 @@ class _HomePageState extends State<HomePage> {
       SymptomEntryPage(token: widget.token),
       HealthDatasPage(token: widget.token),
       HomePageContent(token:widget.token,firstName:firstName),
+      LabResultsPage(token: widget.token),
       ProfilePage(token: widget.token),
     ];
   }
@@ -79,6 +81,7 @@ class _HomePageState extends State<HomePage> {
       SymptomEntryPage(token:widget.token),
       HealthDatasPage(token: widget.token),
       HomePageContent(token:widget.token,firstName:firstName),
+      LabResultsPage(token: widget.token),
       ProfilePage(token: widget.token),
     ];
     return Scaffold(
@@ -92,7 +95,7 @@ class _HomePageState extends State<HomePage> {
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.healing),
-          label: "Semptom",
+          label: "Şikayet",
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.health_and_safety),
@@ -101,6 +104,10 @@ class _HomePageState extends State<HomePage> {
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: "Ana Sayfa",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.rectangle),
+          label: "Tahlil",
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.account_circle),

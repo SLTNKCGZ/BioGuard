@@ -94,7 +94,7 @@ def analyze_complaint_with_ai(complaint_text: str, medical_data: dict, request: 
     
     # Google AI API anahtarını al
     google_api_key = request.app.state.GOOGLE_API_KEY
-    
+    print("API Key:", google_api_key)
     # Google AI API çağrısı
     if google_api_key:
         try:
@@ -123,9 +123,11 @@ def analyze_complaint_with_ai(complaint_text: str, medical_data: dict, request: 
                 json=data,
                 timeout=30
             )
-            
+            print("Google response status:", response.status_code)
+            print("Response body:", response.text)
             if response.status_code == 200:
                 result = response.json()
+                print("Google AI yanıtı:", result)
                 if "candidates" in result and len(result["candidates"]) > 0:
                     ai_response_text = result["candidates"][0]["content"]["parts"][0]["text"]
                     
@@ -151,14 +153,10 @@ def analyze_complaint_with_ai(complaint_text: str, medical_data: dict, request: 
         except Exception as e:
             print(f"Google AI API Error: {e}")
     
-    # Fallback: Simüle edilmiş AI yanıtı (API çalışmazsa)
+
     print("Using fallback analysis...")
-    complaint_lower = complaint_text.lower()
-    
-   
-   
-    
-    # AI yanıt metni - hastalık, neden ve tedavi açıklaması
+
+
     ai_response = f"""
     Hasta şikayeti analiz edildi.
     

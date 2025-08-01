@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, APIRouter
 import os
 from database import Base, engine
-from routers import auth, disease, allergy, symptom, medicine, complaint
+from routers import auth, disease, allergy, symptom, medicine, complaint, lab_result
 
 app = FastAPI()
 
@@ -12,7 +12,7 @@ app.include_router(allergy.router)
 app.include_router(symptom.router)
 app.include_router(medicine.router)
 app.include_router(complaint.router)
-app.include_router(lab_result.router)
+#app.include_router(lab_result.router)
 
 
 load_dotenv()
