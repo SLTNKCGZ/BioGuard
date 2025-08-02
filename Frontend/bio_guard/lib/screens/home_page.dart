@@ -209,7 +209,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.blue[500],
         elevation: 0,
         title: Row(
           children: [
@@ -362,4 +362,5 @@ class _HomePageState extends State<HomePage> {
     );
   }
 } 
+
 
