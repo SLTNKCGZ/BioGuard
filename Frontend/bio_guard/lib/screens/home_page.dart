@@ -1,218 +1,184 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart'; // fl_chart kütüphanesi için
-import 'dart:convert'; // json işlemleri için (gerçek API entegrasyonunda kullanılacak)
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-// Diğer sayfa importları (dosya yollarını kendi projenize göre güncelleyin)
-import 'package:your_app_name/lab_results_page.dart';
-import 'package:your_app_name/health_datas_page.dart'; // Önceki etkileşimimizdeki HealthDatasPage
-
-// Placeholder sayfalar (eğer henüz ayrı dosyalarda değillerse veya test amaçlı)
-// Eğer bu sayfalar zaten ayrı dosyalardaysa, bu placeholder'ları silin ve yukarıdaki gibi import edin.
-class SymptomEntryPage extends StatelessWidget {
-  final String token;
-  const SymptomEntryPage({super.key, required this.token});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Semptom Girişi'),
-          backgroundColor: Colors.blue[600],
-          titleTextStyle: const TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
-          iconTheme: const IconThemeData(color: Colors.white),
-        ),
-        body: const Center(child: Text('Semptom Giriş Sayfası İçeriği')),
-      );
-}
-
-class ProfilePage extends StatelessWidget {
-  final String token;
-  const ProfilePage({super.key, required this.token});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Profilim'),
-          backgroundColor: Colors.blue[600],
-          titleTextStyle: const TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
-          iconTheme: const IconThemeData(color: Colors.white),
-        ),
-        body: const Center(child: Text('Profil Sayfası İçeriği')),
-      );
-}
-// Placeholder sayfaların sonu
+import 'lab_results_page.dart';
 
 class HomePage extends StatefulWidget {
   final String token;
-  const HomePage({super.key, required this.token});
+  final String? firstName;
+
+  const HomePage({super.key, required this.token, this.firstName});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 2; // Ana Sayfa varsayılan olarak seçili (Bottom nav barda index 2 home)
-  String? firstName = "Rabia"; // Örnek olarak sabit isim
+  final TextEditingController _tansiyonController = TextEditingController();
+  final TextEditingController _sekerController = TextEditingController();
 
-  late List<Widget> _pages; // Sayfa listesi
+  List<Map<String, dynamic>> _labResults = [];
 
   @override
   void initState() {
     super.initState();
-    _pages = [
-      SymptomEntryPage(token: widget.token),
-      HealthDatasPage(token: widget.token),
-      HomePageContent(token: widget.token, firstName: firstName),
-      ProfilePage(token: widget.token),
-    ];
+    _fetchLabResults();
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        selectedItemColor: Colors.blueAccent,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.healing),
-            label: "Semptom",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.health_and_safety),
-            label: "Sağlık Bilgilerim",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Ana Sayfa",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            label: "Profil",
-          ),
-        ],
-      ),
+  Future<void> _fetchLabResults() async {
+    final response = await http.get(
+      Uri.parse('http://10.0.2.2:8000/lab_results/'),
+      headers: {
+        'Authorization': 'Bearer ${widget.token}',
+        'Content-Type': 'application/json',
+      },
     );
-  }
-}
 
-// Ana Sayfa İçeriği
-class HomePageContent extends StatefulWidget {
-  const HomePageContent({super.key, required this.token, required this.firstName});
-  final String token;
-  final String? firstName;
-
-  @override
-  State<HomePageContent> createState() => _HomePageContentState();
-}
-
-class _HomePageContentState extends State<HomePageContent> {
-  final TextEditingController _tansiyonController = TextEditingController();
-  final TextEditingController _sekerController = TextEditingController();
-
-  List<Map<String, String>> _currentAnalyses = [
-    {"tahlil": "Kolesterol", "sonuc": "190 mg/dL", "tarih": "2025-07-28"},
-    {"tahlil": "Kan Şekeri", "sonuc": "95 mg/dL", "tarih": "2025-07-27"},
-    {"tahlil": "Tansiyon", "sonuc": "120/80 mmHg", "tarih": "2025-07-27"},
-  ];
-
-  List<String> _ozelMesajlar = [
-    "Yeni reçeteniz eczaneden alınabilir.",
-    "Doktorunuz yeni bir kontrol randevusu önerdi."
-  ];
-
-  List<String> _bildirimler = [
-    "Kan şekeri ölçümü yapılmadı, lütfen ölçüm yapınız.",
-    "Son tansiyon değeriniz yüksek, dikkat!"
-  ];
-
-  @override
-  void dispose() {
-    _tansiyonController.dispose();
-    _sekerController.dispose();
-    super.dispose();
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      setState(() {
+        _labResults = data.map((e) => e as Map<String, dynamic>).toList();
+      });
+    } else {
+      // Hata yönetimi
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Tahlil verileri yüklenirken hata oluştu')),
+      );
+    }
   }
 
-  void _kaydetTansiyonSeker() {
-    String tansiyon = _tansiyonController.text.trim();
-    String seker = _sekerController.text.trim();
+  Future<void> _addOrUpdateTansiyonSeker({bool isUpdate = false}) async {
+    final tansiyon = _tansiyonController.text.trim();
+    final seker = _sekerController.text.trim();
 
     if (tansiyon.isEmpty && seker.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Lütfen en az bir değer giriniz.")),
+        const SnackBar(content: Text('Lütfen Tansiyon veya Şeker bilgisi giriniz')),
       );
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Tansiyon ve Şeker verileri kaydedildi.")),
-    );
+    // Tansiyon veya Şeker ayrı ayrı lab result olarak kaydedilecek
+    // Örnek olarak 'Tansiyon' ve 'Kan Şekeri' adlarıyla
+    final List<Map<String, dynamic>> entries = [];
 
-    _tansiyonController.clear();
-    _sekerController.clear();
+    if (tansiyon.isNotEmpty) {
+      entries.add({
+        'test': 'Tansiyon',
+        'result': tansiyon,
+        'unit': 'mmHg',
+        'date': DateTime.now().toIso8601String(),
+      });
+    }
+
+    if (seker.isNotEmpty) {
+      entries.add({
+        'test': 'Kan Şekeri',
+        'result': seker,
+        'unit': 'mg/dL',
+        'date': DateTime.now().toIso8601String(),
+      });
+    }
+
+    try {
+      for (final entry in entries) {
+        final response = await http.post(
+          Uri.parse('http://10.0.2.2:8000/lab_results/'),
+          headers: {
+            'Authorization': 'Bearer ${widget.token}',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({
+            'test': entry['test'],
+            'result': entry['result'],
+            'unit': entry['unit'],
+            'date': entry['date'],
+          }),
+        );
+
+        if (response.statusCode != 200 && response.statusCode != 201) {
+          throw Exception('Kayıt başarısız');
+        }
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(isUpdate ? 'Güncelleme başarılı' : 'Veriler kaydedildi')),
+      );
+
+      _tansiyonController.clear();
+      _sekerController.clear();
+      await _fetchLabResults();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('İşlem başarısız: $e')),
+      );
+    }
   }
 
-  Widget _buildGraph() {
-    final List<FlSpot> dataPoints = [
-      FlSpot(0, 90),
-      FlSpot(1, 95),
-      FlSpot(2, 85),
-      FlSpot(3, 100),
-      FlSpot(4, 92),
-      FlSpot(5, 110),
-      FlSpot(6, 105),
-    ];
+  // Grafik için örnek sütun grafik kullanabiliriz
+  Widget _buildBarChart() {
+    if (_labResults.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text('Henüz tahlil verisi bulunmamaktadır.'),
+      );
+    }
 
-    return Container(
-      height: 180,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.blue[50],
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: LineChart(
-        LineChartData(
-          gridData: FlGridData(show: true, horizontalInterval: 10, verticalInterval: 1),
-          titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                interval: 1,
-                getTitlesWidget: (value, meta) {
-                  return Text('G${value.toInt() + 1}');
-                },
-              ),
+    // Kan Şekeri ve Tansiyon verilerini ayıralım ve sayısal olarak kullanabilelim
+    // Tansiyon verisi "120/80" gibi olduğu için işleyelim (örn. sistolik 120)
+    List<Map<String, dynamic>> sekerResults = [];
+    List<Map<String, dynamic>> tansiyonResults = [];
+
+    for (var r in _labResults) {
+      final test = r['test']?.toString().toLowerCase();
+      if (test == 'kan şekeri') {
+        double? val = double.tryParse(r['result'].toString());
+        if (val != null) {
+          sekerResults.add({'date': r['date'], 'value': val});
+        }
+      } else if (test == 'tansiyon') {
+        final parts = r['result']?.toString().split('/');
+        if (parts != null && parts.length == 2) {
+          final sistolik = double.tryParse(parts[0]);
+          if (sistolik != null) {
+            tansiyonResults.add({'date': r['date'], 'value': sistolik});
+          }
+        }
+      }
+    }
+
+    // Örnek olarak sadece Kan Şekeri grafiği yapalım
+    sekerResults.sort((a, b) => a['date'].compareTo(b['date']));
+
+    return SizedBox(
+      height: 200,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: sekerResults.length,
+        itemBuilder: (context, index) {
+          final item = sekerResults[index];
+          final value = item['value'] as double;
+          final dateStr = item['date'].toString().split('T')[0];
+          return Container(
+            width: 40,
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(value.toStringAsFixed(0)),
+                const SizedBox(height: 4),
+                Container(
+                  height: value, // direkt değer ile ilişkilendir (basit gösterim)
+                  width: 20,
+                  color: Colors.blueAccent,
+                ),
+                const SizedBox(height: 4),
+                Text(dateStr, style: const TextStyle(fontSize: 10)),
+              ],
             ),
-            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, interval: 10)),
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          ),
-          borderData: FlBorderData(
-            show: true,
-            border: Border.all(color: Colors.grey),
-          ),
-          minX: 0,
-          maxX: 6,
-          minY: 70,
-          maxY: 120,
-          lineBarsData: [
-            LineChartBarData(
-              spots: dataPoints,
-              isCurved: true,
-              color: Colors.blueAccent,
-              barWidth: 3,
-              dotData: FlDotData(show: true),
-              belowBarData: BarAreaData(show: true, color: Colors.blueAccent.withOpacity(0.3)),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -271,27 +237,39 @@ class _HomePageContentState extends State<HomePageContent> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton.icon(
-                        onPressed: _kaydetTansiyonSeker,
-                        icon: const Icon(Icons.save, color: Colors.white),
-                        label: const Text("Kaydet", style: TextStyle(color: Colors.white)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () => _addOrUpdateTansiyonSeker(isUpdate: false),
+                          icon: const Icon(Icons.save, color: Colors.white),
+                          label: const Text("Kaydet", style: TextStyle(color: Colors.white)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          ),
                         ),
-                      ),
-                    ),
+                        const SizedBox(width: 12),
+                        ElevatedButton.icon(
+                          onPressed: () => _addOrUpdateTansiyonSeker(isUpdate: true),
+                          icon: const Icon(Icons.update, color: Colors.white),
+                          label: const Text("Güncelle", style: TextStyle(color: Colors.white)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orangeAccent,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          ),
+                        ),
+                      ],
+                    )
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 30),
-
             const Text(
-              "📋 Güncel Tahlil Sonuçları",
+              "📊 Kan Şekeri Grafiği",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
             ),
             const SizedBox(height: 12),
@@ -300,54 +278,10 @@ class _HomePageContentState extends State<HomePageContent> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: _currentAnalyses.isEmpty
-                    ? const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text("Henüz kaydedilmiş tahlil sonucunuz bulunmamaktadır."),
-                      )
-                    : ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _currentAnalyses.length,
-                        itemBuilder: (context, index) {
-                          final tahlil = _currentAnalyses[index];
-                          return ListTile(
-                            leading: const Icon(Icons.medical_services, color: Colors.blueAccent),
-                            title: Text(tahlil["tahlil"] ?? '', style: const TextStyle(fontWeight: FontWeight.w500)),
-                            subtitle: Text("Sonuç: ${tahlil["sonuc"]}, Tarih: ${tahlil["tarih"]}"),
-                            trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-                            onTap: () {
-                              // Tahlil detay sayfasına gitme gibi bir aksiyon eklenebilir
-                            },
-                          );
-                        },
-                      ),
+                child: _buildBarChart(),
               ),
             ),
             const SizedBox(height: 30),
-
-            const Text(
-              "📊 Sağlık Verileri Grafiği",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
-            ),
-            const SizedBox(height: 12),
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: _buildGraph(),
-              ),
-            ),
-
-            // Yeni eklenen Tahlil Girişi Başlığı
-            const SizedBox(height: 30),
-            const Text(
-              "➡️ Tüm Tahlillerime Git", // Yeni başlık
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
-            ),
-            const SizedBox(height: 12),
-
             InkWell(
               onTap: () {
                 Navigator.push(
@@ -380,87 +314,10 @@ class _HomePageContentState extends State<HomePageContent> {
                 ),
               ),
             ),
-
-            const SizedBox(height: 30),
-            const Text(
-              "📩 Özel Mesajlarınız",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
-            ),
-            const SizedBox(height: 12),
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: _ozelMesajlar.isEmpty
-                  ? const Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Text("Henüz yeni bir özel mesajınız yok."),
-                    )
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _ozelMesajlar.length,
-                      itemBuilder: (context, index) {
-                        return Container(
-                          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.lightBlue[50],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(_ozelMesajlar[index]),
-                        );
-                      },
-                    ),
-            ),
-
-            const SizedBox(height: 30),
-            const Text(
-              "🔔 Önemli Bildirimler",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
-            ),
-            const SizedBox(height: 12),
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: _bildirimler.isEmpty
-                  ? const Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Text("Bugün için herhangi bir bildirim bulunmamaktadır."),
-                    )
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _bildirimler.length,
-                      itemBuilder: (context, index) {
-                        return Container(
-                          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.orange[100],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(_bildirimler[index]),
-                        );
-                      },
-                    ),
-            ),
-            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
-
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        prefixIcon: Icon(icon),
-        labelText: label,
-        border: const OutlineInputBorder(),
-        filled: true,
-        fillColor: Colors.white,
-      ),
-    );
-  }
 }
+
