@@ -1,43 +1,12 @@
+import 'package:bio_guard/screens/lab_results_page.dart';
+import 'package:bio_guard/screens/profile_page.dart';
+import 'package:bio_guard/screens/symptom_entry_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart'; // fl_chart kütüphanesi için
-import 'dart:convert'; // json işlemleri için (gerçek API entegrasyonunda kullanılacak)
+import 'dart:convert';
 
-// Diğer sayfa importları (dosya yollarını kendi projenize göre güncelleyin)
-import 'package:your_app_name/lab_results_page.dart';
-import 'package:your_app_name/health_datas_page.dart'; // Önceki etkileşimimizdeki HealthDatasPage
+import 'health_datas_page.dart'; // json işlemleri için (gerçek API entegrasyonunda kullanılacak)
 
-// Placeholder sayfalar (eğer henüz ayrı dosyalarda değillerse veya test amaçlı)
-// Eğer bu sayfalar zaten ayrı dosyalardaysa, bu placeholder'ları silin ve yukarıdaki gibi import edin.
-class SymptomEntryPage extends StatelessWidget {
-  final String token;
-  const SymptomEntryPage({super.key, required this.token});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: const Text('Semptom Girişi'),
-      backgroundColor: Colors.blue[600],
-      titleTextStyle: const TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
-      iconTheme: const IconThemeData(color: Colors.white),
-    ),
-    body: const Center(child: Text('Semptom Giriş Sayfası İçeriği')),
-  );
-}
-
-class ProfilePage extends StatelessWidget {
-  final String token;
-  const ProfilePage({super.key, required this.token});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: const Text('Profilim'),
-      backgroundColor: Colors.blue[600],
-      titleTextStyle: const TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
-      iconTheme: const IconThemeData(color: Colors.white),
-    ),
-    body: const Center(child: Text('Profil Sayfası İçeriği')),
-  );
-}
-// Placeholder sayfaların sonu
 
 class HomePage extends StatefulWidget {
   final String token;
@@ -60,6 +29,7 @@ class _HomePageState extends State<HomePage> {
       SymptomEntryPage(token: widget.token),
       HealthDatasPage(token: widget.token),
       HomePageContent(token: widget.token, firstName: firstName),
+      LabResultsPage(token: widget.token),
       ProfilePage(token: widget.token),
     ];
   }
@@ -92,6 +62,11 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: "Ana Sayfa",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.note),
+            label: "Tahlil",
+
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_circle),
