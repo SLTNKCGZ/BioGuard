@@ -49,72 +49,81 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _addOrUpdateTansiyonSeker({bool isUpdate = false}) async {
-    final tansiyon = _tansiyonController.text.trim();
-    final seker = _sekerController.text.trim();
+  final tansiyon = _tansiyonController.text.trim();
+  final seker = _sekerController.text.trim();
 
-    if (tansiyon.isEmpty && seker.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen Tansiyon veya Şeker bilgisi giriniz')),
-      );
-      return;
-    }
+  if (tansiyon.isEmpty && seker.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Lütfen Tansiyon veya Şeker bilgisi giriniz')),
+    );
+    return;
+  }
 
-    // Tansiyon veya Şeker ayrı ayrı lab result olarak kaydedilecek
-    // Örnek olarak 'Tansiyon' ve 'Kan Şekeri' adlarıyla
-    final List<Map<String, dynamic>> entries = [];
+  final nowIso = DateTime.now().toIso8601String();
 
-    if (tansiyon.isNotEmpty) {
-      entries.add({
-        'test': 'Tansiyon',
-        'result': tansiyon,
-        'unit': 'mmHg',
-        'date': DateTime.now().toIso8601String(),
-      });
-    }
+  try {
+    // Her bir test için ayrı ayrı işlem yapacağız
+    for (final test in ['Tansiyon', 'Kan Şekeri']) {
+      String? result;
+      String unit;
 
-    if (seker.isNotEmpty) {
-      entries.add({
-        'test': 'Kan Şekeri',
-        'result': seker,
-        'unit': 'mg/dL',
-        'date': DateTime.now().toIso8601String(),
-      });
-    }
-
-    try {
-      for (final entry in entries) {
-        final response = await http.post(
-          Uri.parse('http://10.0.2.2:8000/lab_results/'),
-          headers: {
-            'Authorization': 'Bearer ${widget.token}',
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode({
-            'test': entry['test'],
-            'result': entry['result'],
-            'unit': entry['unit'],
-            'date': entry['date'],
-          }),
-        );
-
-        if (response.statusCode != 200 && response.statusCode != 201) {
-          throw Exception('Kayıt başarısız');
-        }
+      if (test == 'Tansiyon' && tansiyon.isNotEmpty) {
+        result = tansiyon;
+        unit = 'mmHg';
+      } else if (test == 'Kan Şekeri' && seker.isNotEmpty) {
+        result = seker;
+        unit = 'mg/dL';
+      } else {
+        continue; // boşsa atla
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(isUpdate ? 'Güncelleme başarılı' : 'Veriler kaydedildi')),
+      final existing = _labResults.firstWhere(
+        (e) => e['test'].toString().toLowerCase() == test.toLowerCase(),
+        orElse: () => {},
       );
 
-      _tansiyonController.clear();
-      _sekerController.clear();
-      await _fetchLabResults();
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('İşlem başarısız: $e')),
-      );
+      final body = jsonEncode({
+        'test': test,
+        'result': result,
+        'unit': unit,
+        'date': nowIso,
+      });
+
+      final uri = isUpdate && existing['id'] != null
+          ? Uri.parse('http://10.0.2.2:8000/lab_results/${existing['id']}')
+          : Uri.parse('http://10.0.2.2:8000/lab_results/');
+
+      final method = isUpdate && existing['id'] != null ? 'PUT' : 'POST';
+
+      final response = await (method == 'PUT'
+          ? http.put(uri, headers: {
+              'Authorization': 'Bearer ${widget.token}',
+              'Content-Type': 'application/json',
+            }, body: body)
+          : http.post(uri, headers: {
+              'Authorization': 'Bearer ${widget.token}',
+              'Content-Type': 'application/json',
+            }, body: body));
+
+      if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 204) {
+        throw Exception('Hata oluştu: ${response.body}');
+      }
     }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(isUpdate ? 'Güncelleme başarılı' : 'Veriler kaydedildi')),
+    );
+
+    _tansiyonController.clear();
+    _sekerController.clear();
+    await _fetchLabResults();
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('İşlem başarısız: $e')),
+    );
   }
+}
+
 
   // Grafik için örnek sütun grafik kullanabiliriz
   Widget _buildBarChart() {
@@ -320,4 +329,5 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
 
