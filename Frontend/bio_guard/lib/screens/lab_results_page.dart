@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'past_lab_results_page.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:intl/intl.dart';
 
 class LabResultsPage extends StatefulWidget {
@@ -11,26 +12,132 @@ class LabResultsPage extends StatefulWidget {
 }
 
 class _LabResultsPageState extends State<LabResultsPage> {
+  List<Map<String, dynamic>> _labResults = [];
+
+  final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController _testController = TextEditingController();
   final TextEditingController _resultController = TextEditingController();
   final TextEditingController _unitController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
 
-  String? _selectedTest;
+  int? _editingLabResultId; // Güncelleme için seçilen lab result id
 
-  final List<String> _commonTests = [
-    'Kan Şekeri',
-    'Tansiyon',
-    'Kolesterol',
-    'Hemoglobin',
-    'Trigliserid',
-    'Beyaz Kan Hücresi'
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _fetchLabResults();
+  }
+
+  Future<void> _fetchLabResults() async {
+    final response = await http.get(
+      Uri.parse('http://10.0.2.2:8000/lab_results/'),
+      headers: {
+        'Authorization': 'Bearer ${widget.token}',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      setState(() {
+        _labResults = data.map((e) => e as Map<String, dynamic>).toList();
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tahlil verileri yüklenirken hata oluştu')),
+      );
+    }
+  }
+
+  Future<void> _deleteLabResult(int id) async {
+    final response = await http.delete(
+      Uri.parse('http://10.0.2.2:8000/lab_results/$id'),
+      headers: {
+        'Authorization': 'Bearer ${widget.token}',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 204) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tahlil silindi')),
+      );
+      _fetchLabResults();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tahlil silme başarısız oldu')),
+      );
+    }
+  }
+
+  Future<void> _addOrUpdateLabResult() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final test = _testController.text.trim();
+    final result = _resultController.text.trim();
+    final unit = _unitController.text.trim();
+    final date = _dateController.text.trim();
+
+    final body = jsonEncode({
+      'test': test,
+      'result': result,
+      'unit': unit,
+      'date': date,
+    });
+
+    late http.Response response;
+
+    if (_editingLabResultId == null) {
+      // Yeni ekle
+      response = await http.post(
+        Uri.parse('http://10.0.2.2:8000/lab_results/'),
+        headers: {
+          'Authorization': 'Bearer ${widget.token}',
+          'Content-Type': 'application/json',
+        },
+        body: body,
+      );
+    } else {
+      // Güncelle
+      response = await http.put(
+        Uri.parse('http://10.0.2.2:8000/lab_results/${_editingLabResultId!}'),
+        headers: {
+          'Authorization': 'Bearer ${widget.token}',
+          'Content-Type': 'application/json',
+        },
+        body: body,
+      );
+    }
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_editingLabResultId == null ? 'Tahlil eklendi' : 'Tahlil güncellendi')),
+      );
+      _clearForm();
+      _fetchLabResults();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('İşlem başarısız: ${response.statusCode}')),
+      );
+    }
+  }
+
+  void _clearForm() {
+    _testController.clear();
+    _resultController.clear();
+    _unitController.clear();
+    _dateController.clear();
+    _editingLabResultId = null;
+  }
 
   void _pickDate() async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2020),
+      initialDate: _dateController.text.isNotEmpty
+          ? DateFormat('yyyy-MM-dd').parse(_dateController.text)
+          : DateTime.now(),
+      firstDate: DateTime(2000),
       lastDate: DateTime.now(),
     );
 
@@ -39,114 +146,148 @@ class _LabResultsPageState extends State<LabResultsPage> {
     }
   }
 
-  void _addResult() {
-    if (_selectedTest == null || _resultController.text.isEmpty || _dateController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen gerekli alanları doldurun')),
-      );
-      return;
-    }
-
-    // API gönderimi yapılacak alan
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Tahlil başarıyla eklendi')),
-    );
-
+  void _startEditLabResult(Map<String, dynamic> labResult) {
     setState(() {
-      _selectedTest = null;
+      _editingLabResultId = labResult['id'] as int?;
+      _testController.text = labResult['test'] ?? '';
+      _resultController.text = labResult['result'] ?? '';
+      _unitController.text = labResult['unit'] ?? '';
+      _dateController.text = labResult['date']?.split('T')[0] ?? '';
     });
-    _resultController.clear();
-    _unitController.clear();
-    _dateController.clear();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
-  backgroundColor: Colors.blue[600],
-  title: const Text(
-    '🧪 Tahlil Girişi',
-    style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
-  ),
-  iconTheme: const IconThemeData(color: Colors.white),
-  actions: [
-    IconButton(
-      icon: const Icon(Icons.history),
-      tooltip: 'Geçmiş Tahliller',
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PastLabResultsPage(token: widget.token),
-          ),
-        );
-      },
-    )
-  ],
-),
-
+        title: const Text('🧪 Tahlil Girişi ve Düzenleme'),
+        backgroundColor: Colors.blue[600],
+      ),
+      backgroundColor: const Color(0xFFF5F6FA),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Tahlil Türü', style: TextStyle(fontWeight: FontWeight.w600)),
-            DropdownButtonFormField<String>(
-              value: _selectedTest,
-              hint: const Text("Tahlil seçiniz"),
-              items: _commonTests.map((test) {
-                return DropdownMenuItem(value: test, child: Text(test));
-              }).toList(),
-              onChanged: (val) => setState(() => _selectedTest = val),
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 10),
-            _buildTextField(_resultController, 'Sonuç', Icons.format_list_numbered),
-            const SizedBox(height: 10),
-            _buildTextField(_unitController, 'Birim (mg/dL, vb.)', Icons.straighten),
-            const SizedBox(height: 10),
-            GestureDetector(
-              onTap: _pickDate,
-              child: AbsorbPointer(
-                child: _buildTextField(_dateController, 'Tarih Seç', Icons.calendar_today),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: _addResult,
-                  icon: const Icon(Icons.add),
-                  label: const Text("Ekle"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: _testController,
+                    decoration: const InputDecoration(
+                      labelText: 'Tahlil Türü',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.biotech),
+                    ),
+                    validator: (value) => (value == null || value.isEmpty) ? 'Tahlil türü boş olamaz' : null,
                   ),
-                ),
-              ],
-            )
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _resultController,
+                    decoration: const InputDecoration(
+                      labelText: 'Sonuç',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.format_list_numbered),
+                    ),
+                    validator: (value) => (value == null || value.isEmpty) ? 'Sonuç boş olamaz' : null,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _unitController,
+                    decoration: const InputDecoration(
+                      labelText: 'Birim (mg/dL, mmHg, vb.)',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.straighten),
+                    ),
+                    validator: (value) => (value == null || value.isEmpty) ? 'Birim boş olamaz' : null,
+                  ),
+                  const SizedBox(height: 10),
+                  GestureDetector(
+                    onTap: _pickDate,
+                    child: AbsorbPointer(
+                      child: TextFormField(
+                        controller: _dateController,
+                        decoration: const InputDecoration(
+                          labelText: 'Tarih Seç',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.calendar_today),
+                        ),
+                        validator: (value) => (value == null || value.isEmpty) ? 'Tarih seçiniz' : null,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: _addOrUpdateLabResult,
+                        icon: Icon(_editingLabResultId == null ? Icons.add : Icons.update),
+                        label: Text(_editingLabResultId == null ? "Ekle" : "Güncelle"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _editingLabResultId == null ? Colors.blueAccent : Colors.orangeAccent,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        ),
+                      ),
+                      if (_editingLabResultId != null)
+                        ElevatedButton.icon(
+                          onPressed: _clearForm,
+                          icon: const Icon(Icons.clear),
+                          label: const Text("İptal"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          ),
+                        ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+            const SizedBox(height: 30),
+            const Divider(thickness: 1),
+            const SizedBox(height: 10),
+            _labResults.isEmpty
+                ? const Text("Henüz tahlil kaydı bulunmamaktadır.", style: TextStyle(color: Colors.grey))
+                : ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _labResults.length,
+                    itemBuilder: (context, index) {
+                      final lab = _labResults[index];
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: ListTile(
+                          title: Text(lab['test'] ?? ''),
+                          subtitle: Text(
+                              "Sonuç: ${lab['result'] ?? ''} ${lab['unit'] ?? ''}\nTarih: ${lab['date']?.split('T')[0] ?? ''}"),
+                          isThreeLine: true,
+                          trailing: SizedBox(
+                            width: 96,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit, color: Colors.orange),
+                                  tooltip: 'Düzenle',
+                                  onPressed: () => _startEditLabResult(lab),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  tooltip: 'Sil',
+                                  onPressed: () => _deleteLabResult(lab['id']),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  )
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        prefixIcon: Icon(icon),
-        labelText: label,
-        filled: true,
-        fillColor: Colors.white,
-        border: const OutlineInputBorder(),
       ),
     );
   }
