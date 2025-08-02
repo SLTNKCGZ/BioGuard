@@ -161,7 +161,7 @@ class _LabResultsPageState extends State<LabResultsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('🧪 Tahlil Girişi ve Düzenleme'),
-        backgroundColor: Colors.blue[600],
+        backgroundColor: Colors.blue[500],
       ),
       backgroundColor: const Color(0xFFF5F6FA),
       body: SingleChildScrollView(
