@@ -5,6 +5,8 @@ import 'screens/login_page.dart';
 import 'screens/register_page.dart';
 import 'screens/symptom_entry_page.dart';
 import 'screens/health_datas_page.dart';
+import 'screens/lab_results_page.dart';
+import 'screens/past_lab_results_page.dart';
 
 
 void main() {
@@ -25,6 +27,8 @@ class SaglikUygulamasi extends StatelessWidget {
     );
   }
 }
+
+
 
 
 
