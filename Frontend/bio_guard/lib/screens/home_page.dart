@@ -41,7 +41,6 @@ class _HomePageState extends State<HomePage> {
         _labResults = data.map((e) => e as Map<String, dynamic>).toList();
       });
     } else {
-      // Hata yönetimi
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Tahlil verileri yüklenirken hata oluştu')),
       );
@@ -49,141 +48,155 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _addOrUpdateTansiyonSeker({bool isUpdate = false}) async {
-  final tansiyon = _tansiyonController.text.trim();
-  final seker = _sekerController.text.trim();
+    final tansiyon = _tansiyonController.text.trim();
+    final seker = _sekerController.text.trim();
 
-  if (tansiyon.isEmpty && seker.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Lütfen Tansiyon veya Şeker bilgisi giriniz')),
-    );
-    return;
-  }
-
-  final nowIso = DateTime.now().toIso8601String();
-
-  try {
-    // Her bir test için ayrı ayrı işlem yapacağız
-    for (final test in ['Tansiyon', 'Kan Şekeri']) {
-      String? result;
-      String unit;
-
-      if (test == 'Tansiyon' && tansiyon.isNotEmpty) {
-        result = tansiyon;
-        unit = 'mmHg';
-      } else if (test == 'Kan Şekeri' && seker.isNotEmpty) {
-        result = seker;
-        unit = 'mg/dL';
-      } else {
-        continue; // boşsa atla
-      }
-
-      final existing = _labResults.firstWhere(
-        (e) => e['test'].toString().toLowerCase() == test.toLowerCase(),
-        orElse: () => {},
+    if (tansiyon.isEmpty && seker.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Lütfen Tansiyon veya Şeker bilgisi giriniz')),
       );
-
-      final body = jsonEncode({
-        'test': test,
-        'result': result,
-        'unit': unit,
-        'date': nowIso,
-      });
-
-      final uri = isUpdate && existing['id'] != null
-          ? Uri.parse('http://10.0.2.2:8000/lab_results/${existing['id']}')
-          : Uri.parse('http://10.0.2.2:8000/lab_results/');
-
-      final method = isUpdate && existing['id'] != null ? 'PUT' : 'POST';
-
-      final response = await (method == 'PUT'
-          ? http.put(uri, headers: {
-              'Authorization': 'Bearer ${widget.token}',
-              'Content-Type': 'application/json',
-            }, body: body)
-          : http.post(uri, headers: {
-              'Authorization': 'Bearer ${widget.token}',
-              'Content-Type': 'application/json',
-            }, body: body));
-
-      if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 204) {
-        throw Exception('Hata oluştu: ${response.body}');
-      }
+      return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(isUpdate ? 'Güncelleme başarılı' : 'Veriler kaydedildi')),
-    );
+    final nowIso = DateTime.now().toIso8601String();
 
-    _tansiyonController.clear();
-    _sekerController.clear();
-    await _fetchLabResults();
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('İşlem başarısız: $e')),
-    );
+    try {
+      for (final test in ['Tansiyon', 'Kan Şekeri']) {
+        String? result;
+        String unit;
+
+        if (test == 'Tansiyon' && tansiyon.isNotEmpty) {
+          result = tansiyon;
+          unit = 'mmHg';
+        } else if (test == 'Kan Şekeri' && seker.isNotEmpty) {
+          result = seker;
+          unit = 'mg/dL';
+        } else {
+          continue;
+        }
+
+        final existing = _labResults.firstWhere(
+          (e) => e['test'].toString().toLowerCase() == test.toLowerCase(),
+          orElse: () => {},
+        );
+
+        final body = jsonEncode({
+          'test': test,
+          'result': result,
+          'unit': unit,
+          'date': nowIso,
+        });
+
+        final uri = isUpdate && existing['id'] != null
+            ? Uri.parse('http://10.0.2.2:8000/lab_results/${existing['id']}')
+            : Uri.parse('http://10.0.2.2:8000/lab_results/');
+
+        final method = isUpdate && existing['id'] != null ? 'PUT' : 'POST';
+
+        final response = await (method == 'PUT'
+            ? http.put(uri,
+                headers: {
+                  'Authorization': 'Bearer ${widget.token}',
+                  'Content-Type': 'application/json',
+                },
+                body: body)
+            : http.post(uri,
+                headers: {
+                  'Authorization': 'Bearer ${widget.token}',
+                  'Content-Type': 'application/json',
+                },
+                body: body));
+
+        if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 204) {
+          throw Exception('Hata oluştu: ${response.body}');
+        }
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(isUpdate ? 'Güncelleme başarılı' : 'Veriler kaydedildi')),
+      );
+
+      _tansiyonController.clear();
+      _sekerController.clear();
+      await _fetchLabResults();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('İşlem başarısız: $e')),
+      );
+    }
   }
-}
 
-
-  // Grafik için örnek sütun grafik kullanabiliriz
-  Widget _buildBarChart() {
+  Widget _buildHealthDataChart() {
     if (_labResults.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(16.0),
-        child: Text('Henüz tahlil verisi bulunmamaktadır.'),
+        child: Text('Henüz sağlık verisi bulunmamaktadır.'),
       );
     }
 
-    // Kan Şekeri ve Tansiyon verilerini ayıralım ve sayısal olarak kullanabilelim
-    // Tansiyon verisi "120/80" gibi olduğu için işleyelim (örn. sistolik 120)
-    List<Map<String, dynamic>> sekerResults = [];
-    List<Map<String, dynamic>> tansiyonResults = [];
+    final Map<String, Map<String, dynamic>> latestResults = {};
 
-    for (var r in _labResults) {
-      final test = r['test']?.toString().toLowerCase();
-      if (test == 'kan şekeri') {
-        double? val = double.tryParse(r['result'].toString());
-        if (val != null) {
-          sekerResults.add({'date': r['date'], 'value': val});
-        }
-      } else if (test == 'tansiyon') {
-        final parts = r['result']?.toString().split('/');
-        if (parts != null && parts.length == 2) {
-          final sistolik = double.tryParse(parts[0]);
-          if (sistolik != null) {
-            tansiyonResults.add({'date': r['date'], 'value': sistolik});
-          }
+    for (var result in _labResults) {
+      final test = result['test']?.toString() ?? '';
+      final resultVal = result['result']?.toString() ?? '';
+      final date = result['date']?.toString() ?? '';
+
+      final value = double.tryParse(resultVal);
+      if (value != null) {
+        if (!latestResults.containsKey(test) ||
+            DateTime.parse(date).isAfter(DateTime.parse(latestResults[test]!['date']))) {
+          latestResults[test] = {
+            'value': value,
+            'date': date,
+          };
         }
       }
     }
 
-    // Örnek olarak sadece Kan Şekeri grafiği yapalım
-    sekerResults.sort((a, b) => a['date'].compareTo(b['date']));
+    if (latestResults.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text('Grafik oluşturulabilecek geçerli veri bulunamadı.'),
+      );
+    }
 
     return SizedBox(
       height: 200,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: sekerResults.length,
+        itemCount: latestResults.length,
         itemBuilder: (context, index) {
-          final item = sekerResults[index];
-          final value = item['value'] as double;
-          final dateStr = item['date'].toString().split('T')[0];
+          final entry = latestResults.entries.elementAt(index);
+          final testName = entry.key;
+          final value = entry.value['value'] as double;
+          final date = entry.value['date'].toString().split('T')[0];
+
           return Container(
-            width: 40,
-            margin: const EdgeInsets.symmetric(horizontal: 4),
+            width: 60,
+            margin: const EdgeInsets.symmetric(horizontal: 8),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text(value.toStringAsFixed(0)),
+                Text(value.toStringAsFixed(1)),
                 const SizedBox(height: 4),
                 Container(
-                  height: value, // direkt değer ile ilişkilendir (basit gösterim)
+                  height: value,
                   width: 20,
-                  color: Colors.blueAccent,
+                  decoration: BoxDecoration(
+                    color: Colors.teal,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
                 const SizedBox(height: 4),
-                Text(dateStr, style: const TextStyle(fontSize: 10)),
+                Text(
+                  testName.length > 8 ? '${testName.substring(0, 8)}...' : testName,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 10),
+                ),
+                Text(
+                  date,
+                  style: const TextStyle(fontSize: 8, color: Colors.grey),
+                ),
               ],
             ),
           );
@@ -196,106 +209,104 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Merhaba ${widget.firstName ?? ""}'),
-        backgroundColor: Colors.blue[600],
-        titleTextStyle: const TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
-        leading: const Icon(Icons.waving_hand_rounded, color: Colors.white, size: 25),
+        backgroundColor: Colors.blue,
+        elevation: 0,
+        title: Row(
+          children: [
+            const Text(
+              '👋',
+              style: TextStyle(fontSize: 26),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Merhaba ${widget.firstName ?? ''}',
+              style: const TextStyle(
+                color: Colors.black87,
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ),
       backgroundColor: const Color(0xFFF5F6FA),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "🩺 Tansiyon / Şeker Girişi",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+              'Tansiyon / Şeker Girişi',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 12),
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _tansiyonController,
-                            decoration: const InputDecoration(
-                              labelText: "Tansiyon (örn: 120/80)",
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.monitor_heart),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TextField(
-                            controller: _sekerController,
-                            decoration: const InputDecoration(
-                              labelText: "Kan Şekeri (mg/dL)",
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.bloodtype),
-                            ),
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-                      ],
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _tansiyonController,
+                    decoration: const InputDecoration(
+                      labelText: "Tansiyon (örn: 120/80)",
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.monitor_heart),
                     ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        ElevatedButton.icon(
-                          onPressed: () => _addOrUpdateTansiyonSeker(isUpdate: false),
-                          icon: const Icon(Icons.save, color: Colors.white),
-                          label: const Text("Kaydet", style: TextStyle(color: Colors.white)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        ElevatedButton.icon(
-                          onPressed: () => _addOrUpdateTansiyonSeker(isUpdate: true),
-                          icon: const Icon(Icons.update, color: Colors.white),
-                          label: const Text("Güncelle", style: TextStyle(color: Colors.white)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orangeAccent,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
+                  ),
                 ),
-              ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TextField(
+                    controller: _sekerController,
+                    decoration: const InputDecoration(
+                      labelText: "Kan Şekeri (mg/dL)",
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.bloodtype),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () => _addOrUpdateTansiyonSeker(isUpdate: false),
+                  icon: const Icon(Icons.save),
+                  label: const Text("Kaydet"),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton.icon(
+                  onPressed: () => _addOrUpdateTansiyonSeker(isUpdate: true),
+                  icon: const Icon(Icons.update),
+                  label: const Text("Güncelle"),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.orangeAccent),
+                ),
+              ],
             ),
             const SizedBox(height: 30),
             const Text(
-              "📊 Kan Şekeri Grafiği",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+              '📈 Sağlık Verileri Grafiği',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: _buildBarChart(),
+                child: _buildHealthDataChart(),
               ),
             ),
             const SizedBox(height: 30),
-            InkWell(
+            GestureDetector(
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LabResultsPage(token: widget.token)),
+                  MaterialPageRoute(
+                    builder: (context) => LabResultsPage(token: widget.token),
+                  ),
                 );
               },
               child: Container(
@@ -305,19 +316,18 @@ class _HomePageState extends State<HomePage> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.blueAccent.withOpacity(0.5)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.blueAccent.withOpacity(0.1),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
                 ),
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("🧪 Tahlil Girişi Yap", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.blueAccent)),
+                    Text(
+                      "🧪 Tahlil Girişi Yap",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.blueAccent,
+                      ),
+                    ),
                     Icon(Icons.arrow_forward_ios, color: Colors.blueAccent, size: 20),
                   ],
                 ),
@@ -326,8 +336,30 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 2, // Home
+        selectedItemColor: Colors.blueAccent,
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.medication),
+            label: 'Semptomlar',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.health_and_safety),
+            label: 'Sağlık Bilgilerim',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Ana Sayfa',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profil',
+          ),
+        ],
+      ),
     );
   }
-}
-
+} 
 
