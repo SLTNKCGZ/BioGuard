@@ -21,7 +21,7 @@ class _LabResultsPageState extends State<LabResultsPage> {
   final TextEditingController _unitController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
 
-  int? _editingLabResultId;
+  int? _editingLabResultId; // Güncelleme için seçilen lab result id
 
   @override
   void initState() {
@@ -101,11 +101,11 @@ class _LabResultsPageState extends State<LabResultsPage> {
         'unit': unit,
         'date': date,
       });
-      
+
       print('Create Request Body: $createBody');
       print('Create Request Body type: ${createBody.runtimeType}');
       print('=== END FRONTEND DEBUG ===');
-      
+
       response = await http.post(
         Uri.parse('http://10.0.2.2:8000/lab_results/create'),
         headers: {
@@ -123,11 +123,11 @@ class _LabResultsPageState extends State<LabResultsPage> {
         'unit': unit,
         'date': date,
       });
-      
+
       print('Update Request Body: $updateBody');
       print('Update Request Body type: ${updateBody.runtimeType}');
       print('=== END FRONTEND UPDATE DEBUG ===');
-      
+
       response = await http.put(
         Uri.parse('http://10.0.2.2:8000/lab_results/${_editingLabResultId!}'),
         headers: {
@@ -141,13 +141,13 @@ class _LabResultsPageState extends State<LabResultsPage> {
     print('Response Status: ${response.statusCode}');
     print('Response Body: ${response.body}');
     print('Response Headers: ${response.headers}');
-    
+
     if (response.statusCode == 200 || response.statusCode == 201) {
       final isUpdate = _editingLabResultId != null;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(isUpdate ? 'Tahlil güncellendi' : 'Tahlil eklendi')),
       );
-      
+
       if (isUpdate) {
         // Güncelleme durumunda, sadece ilgili öğeyi güncelle
         final responseData = jsonDecode(response.body);
@@ -164,7 +164,7 @@ class _LabResultsPageState extends State<LabResultsPage> {
           _labResults.insert(0, responseData); // En başa ekle
         });
       }
-      
+
       _clearForm();
     } else {
       print('Error response body: ${response.body}');
@@ -326,7 +326,7 @@ class _LabResultsPageState extends State<LabResultsPage> {
                         child: ListTile(
                           title: Text(lab['test'] ?? ''),
                           subtitle: Text(
-                              "Sonuç: ${lab['result']?.toString() ?? ''} ${lab['unit'] ?? ''}\nTarih: ${lab['date']?.split('T')[0] ?? ''}"),
+                              "Sonuç: ${lab['result'] ?? ''} ${lab['unit'] ?? ''}\nTarih: ${lab['date']?.split('T')[0] ?? ''}"),
                           isThreeLine: true,
                           trailing: SizedBox(
                             width: 96,

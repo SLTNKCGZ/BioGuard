@@ -3,9 +3,7 @@ BioGuards
 
 # Takım Üyeleri
 -Sultan Kocagöz  :Product Owner / Developer   
--Hatice Bekkaya  :Scrum Master / Developer   
--Emirhan Topçu   :Developer   
--Hakan Ertürk    :Developer   
+-Hatice Bekkaya  :Scrum Master / Developer     
 
 # Ürün ile İlgili Bilgiler
 ## Ürün İsmi
@@ -94,6 +92,41 @@ Bu Sprint’te ileriye dönük araştırmalar yapılıp genel olarak frontend ç
 
 Sprint review katılımcıları:Hatice Bekkaya,Sultan Kocagöz
 
-Sprint Retrospective:  
+Sprint Retrospective: 
+Bir sonraki Sprint’te daha aktif olma kararı alınmıştır.Projenin ilerleyişi için daha fazla araştırma ile daha iyi temeller atmaya karar verilmiştir.
+
+# Sprint 3
+Sprint Notları: Bu sprintte geride kalan görevler tamamlanış proje bitirilmiştir.
+
+Tahmin Edilen Tamamlanacak Puan: 220 Puan  
+
+Tahmin mantığı: Bu sprint son sprint olduğu için geride kalan görevlerin hepsi burada tamamlanmıştır o yüzden bu sprintin tahmin edilen tamamlanacak puanının 220 olmasına karar verilmiştir.Düzenlenen dosyalar ve yeniden oluşturulan dosyalar ayrı ayrı puanlarla değerlendirilmiştir.
+
+Daily Scrum:  
+<img src="Images/dailyscrum9.jpg" alt="SB" width="900"/>
+<img src="Images/dailyscrum10.jpg" alt="DS" width="200"/>
+<img src="Images/dailyscrum11.jpg" alt="DS" width="200"/>
+<img src="Images/dailyscrum12.jpg" alt="DS" width="200"/>   
+   
+
+Sprint Board Update:Kartlar için gerekli açıklamalar ve dosyalar kart açıklamasında bulunmaktadır.
+ 
+
+Ürün Durumu Screenshots:   
+
+
+Sprint Review:  
+Bu Sprint’te projenin son durumu için toplantı yapılmıştır son durum için kararlar alınmıştır.Bu karalar ışığında eksik görevler tamamlanmış ve proje tamamlanmıştır. 
+
+Sprint review katılımcıları:Hatice Bekkaya,Sultan Kocagöz
+
+Sprint Retrospective:
+Proje tamamlanmıştır.Bu süreçte bizimle ilgilenen destek olan herkese teşekkürlerimizi sunarız.
+
+
+
+
+
+
 Bir sonraki Sprint’te daha aktif olma kararı alınmıştır.Projenin ilerleyişi için daha fazla araştırma ile daha iyi temeller atmaya karar verilmiştir.
 
