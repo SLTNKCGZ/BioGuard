@@ -122,7 +122,7 @@ Sprint Board Update:Kartlar için gerekli açıklamalar ve dosyalar kart açıkl
 <img src="Images/Sprint 3/ps7.png" alt="SB" width="200"/>
 <img src="Images/Sprint 3/ps8.png" alt="SB" width="200"/>
 <img src="Images/Sprint 3/ps9.png" alt="SB" width="200"/>
-<img src="Images/Sprint 3/ps10.png" alt="SB" width=200"/>   
+<img src="Images/Sprint 3/ps10.png" alt="SB" width="200"/>      
  
 
 
