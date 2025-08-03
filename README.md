@@ -131,6 +131,5 @@ Bu Sprint’te projenin son durumu için toplantı yapılmıştır son durum iç
 
 Sprint review katılımcıları:Hatice Bekkaya,Sultan Kocagöz
 
-Sprint Retrospective:Bu süreçte takımdan ayrılan ekip arkadaşlarımız olmuştur.Proje süreci Sultan Kocagöz önderliğinde Hatice Bekkaya ile başlanıp tamamlanmıştır.
-Proje tamamlanmıştır.Bu süreçte bizimle ilgilenen destek olan herkese teşekkürlerimizi sunarız.
+Sprint Retrospective:Bu süreçte takımdan ayrılan ekip arkadaşlarımız olmuştur.Proje süreci Sultan Kocagöz önderliğinde Hatice Bekkaya ile başlanıp tamamlanmıştır.Bu süreçte bizimle ilgilenen destek olan herkese teşekkürlerimizi sunarız.
 
