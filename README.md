@@ -3,9 +3,7 @@ BioGuards
 
 # Takım Üyeleri
 -Sultan Kocagöz  :Product Owner / Developer   
--Hatice Bekkaya  :Scrum Master / Developer   
--Emirhan Topçu   :Developer   
--Hakan Ertürk    :Developer   
+-Hatice Bekkaya  :Scrum Master / Developer     
 
 # Ürün ile İlgili Bilgiler
 ## Ürün İsmi
