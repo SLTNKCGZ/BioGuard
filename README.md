@@ -103,7 +103,7 @@ Tahmin Edilen Tamamlanacak Puan: 220 Puan
 Tahmin mantığı: Bu sprint son sprint olduğu için geride kalan görevlerin hepsi burada tamamlanmıştır o yüzden bu sprintin tahmin edilen tamamlanacak puanının 220 olmasına karar verilmiştir.Düzenlenen dosyalar ve yeniden oluşturulan dosyalar ayrı ayrı puanlarla değerlendirilmiştir.
 
 Daily Scrum:  
-<img src="Images/dailyscrum9.jpg" alt="SB" width="600"/>
+<img src="Images/dailyscrum9.jpg" alt="SB" width="900"/>
 <img src="Images/dailyscrum10.jpg" alt="DS" width="200"/>
 <img src="Images/dailyscrum11.jpg" alt="DS" width="200"/>
 <img src="Images/dailyscrum12.jpg" alt="DS" width="200"/>   
