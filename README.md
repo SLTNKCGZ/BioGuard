@@ -98,21 +98,32 @@ Bir sonraki Sprint’te daha aktif olma kararı alınmıştır.Projenin ilerleyi
 # Sprint 3
 Sprint Notları: Bu sprintte geride kalan görevler tamamlanış proje bitirilmiştir.
 
-Tahmin Edilen Tamamlanacak Puan: 220 Puan  
+Tahmin Edilen Tamamlanacak Puan: 120 Puan  
 
-Tahmin mantığı: Bu sprint son sprint olduğu için geride kalan görevlerin hepsi burada tamamlanmıştır o yüzden bu sprintin tahmin edilen tamamlanacak puanının 220 olmasına karar verilmiştir.Düzenlenen dosyalar ve yeniden oluşturulan dosyalar ayrı ayrı puanlarla değerlendirilmiştir.
+Tahmin mantığı: Bu sprint son sprint olduğu için geride kalan görevlerin hepsi burada tamamlanmıştır o yüzden bu sprintin tahmin edilen tamamlanacak puanının 120 olmasına karar verilmiştir.Düzenlenen dosyalar ve yeniden oluşturulan dosyalar ayrı ayrı puanlarla değerlendirilmiştir.
 
 Daily Scrum:  
-<img src="Images/dailyscrum9.jpg" alt="SB" width="900"/>
-<img src="Images/dailyscrum10.jpg" alt="DS" width="200"/>
-<img src="Images/dailyscrum11.jpg" alt="DS" width="200"/>
-<img src="Images/dailyscrum12.jpg" alt="DS" width="200"/>   
+<img src="Images/Sprint 3/dailyscrum9.jpg" alt="SB" width="900"/>   
+<img src="Images/Sprint 3/dailyscrum10.jpg" alt="DS" width="200"/>
+<img src="Images/Sprint 3/dailyscrum11.jpg" alt="DS" width="200"/>
+<img src="Images/Sprint 3/dailyscrum12.jpg" alt="DS" width="200"/>   
    
 
 Sprint Board Update:Kartlar için gerekli açıklamalar ve dosyalar kart açıklamasında bulunmaktadır.
  
 
 Ürün Durumu Screenshots:   
+<img src="Images/Sprint 3/ps1.png" alt="SB" width="200"/>
+<img src="Images/Sprint 3/ps2.png" alt="SB" width="200"/>
+<img src="Images/Sprint 3/ps3.png" alt="SB" width="200"/>
+<img src="Images/Sprint 3/ps4.png" alt="SB" width="200"/>
+<img src="Images/Sprint 3/ps5.png" alt="SB" width="200"/>
+<img src="Images/Sprint 3/ps6.png" alt="SB" width="200"/>
+<img src="Images/Sprint 3/ps7.png" alt="SB" width="200"/>
+<img src="Images/Sprint 3/ps8.png" alt="SB" width="200"/>
+<img src="Images/Sprint 3/ps9.png" alt="SB" width="200"/>
+<img src="Images/Sprint 3/ps10.png" alt="SB" width=200"/>   
+ 
 
 
 Sprint Review:  
@@ -122,11 +133,4 @@ Sprint review katılımcıları:Hatice Bekkaya,Sultan Kocagöz
 
 Sprint Retrospective:
 Proje tamamlanmıştır.Bu süreçte bizimle ilgilenen destek olan herkese teşekkürlerimizi sunarız.
-
-
-
-
-
-
-Bir sonraki Sprint’te daha aktif olma kararı alınmıştır.Projenin ilerleyişi için daha fazla araştırma ile daha iyi temeller atmaya karar verilmiştir.
 
