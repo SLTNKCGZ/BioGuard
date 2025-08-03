@@ -5,7 +5,7 @@ import 'home_page.dart';
 import 'login_page.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+  const RegisterPage({super.key});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -37,7 +37,7 @@ class _RegisterPageState extends State<RegisterPage> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black12,
                     blurRadius: 16,
@@ -50,7 +50,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
+                    const Text(
                       'Kayıt Ol',
                       style: TextStyle(
                         fontSize: 28,
@@ -63,7 +63,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       controller: _usernameController,
                       decoration: InputDecoration(
                         labelText: 'Kullanıcı Adı',
-                        prefixIcon: Icon(Icons.supervised_user_circle_rounded),
+                        prefixIcon: const Icon(Icons.supervised_user_circle_rounded),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -80,7 +80,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       controller: _nameController,
                       decoration: InputDecoration(
                         labelText: 'Ad',
-                        prefixIcon: Icon(Icons.person_outline),
+                        prefixIcon: const Icon(Icons.person_outline),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -97,7 +97,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       controller: _surnameController,
                       decoration: InputDecoration(
                         labelText: 'Soyad',
-                        prefixIcon: Icon(Icons.person_outline),
+                        prefixIcon: const Icon(Icons.person_outline),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -114,12 +114,12 @@ class _RegisterPageState extends State<RegisterPage> {
                       value: _selectedGender,
                       decoration: InputDecoration(
                         labelText: 'Cinsiyet',
-                        prefixIcon: Icon(Icons.wc),
+                        prefixIcon: const Icon(Icons.wc),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      items: [
+                      items: const [
                         DropdownMenuItem(value: 'Erkek', child: Text('Erkek')),
                         DropdownMenuItem(value: 'Kadın', child: Text('Kadın')),
                         DropdownMenuItem(value: 'Diğer', child: Text('Diğer')),
@@ -157,7 +157,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         child: TextFormField(
                           decoration: InputDecoration(
                             labelText: 'Doğum Tarihi',
-                            prefixIcon: Icon(Icons.cake_outlined),
+                            prefixIcon: const Icon(Icons.cake_outlined),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -182,7 +182,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         labelText: 'Email',
-                        prefixIcon: Icon(Icons.email_outlined),
+                        prefixIcon: const Icon(Icons.email_outlined),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -203,7 +203,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         labelText: 'Şifre',
-                        prefixIcon: Icon(Icons.lock_outline),
+                        prefixIcon: const Icon(Icons.lock_outline),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -232,7 +232,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       obscureText: _obscureConfirmPassword,
                       decoration: InputDecoration(
                         labelText: 'Şifre Tekrar',
-                        prefixIcon: Icon(Icons.lock_outline),
+                        prefixIcon: const Icon(Icons.lock_outline),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -287,7 +287,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               // Kayıt başarılı, login sayfasına yönlendir
                               Navigator.pop(context);
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Kayıt başarılı! Giriş yapabilirsiniz.')),
+                                const SnackBar(content: Text('Kayıt başarılı! Giriş yapabilirsiniz.')),
                               );
                             } else {
                               // Kayıt başarısız
@@ -308,7 +308,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       onPressed: () {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
+                          MaterialPageRoute(builder: (context) => const LoginPage()),
                         );
                       },
                       child: const Text('Zaten hesabınız var mı? Giriş yap'),

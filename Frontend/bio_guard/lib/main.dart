@@ -1,12 +1,7 @@
-import 'package:bio_guard/screens/profile_page.dart';
 import 'package:flutter/material.dart';
-import 'screens/home_page.dart';
 import 'screens/login_page.dart';
 import 'screens/register_page.dart';
-import 'screens/symptom_entry_page.dart';
-import 'screens/health_datas_page.dart';
-import 'screens/lab_results_page.dart';
-import 'screens/past_lab_results_page.dart';
+
 
 
 void main() {
@@ -14,6 +9,8 @@ void main() {
 }
 
 class SaglikUygulamasi extends StatelessWidget {
+  const SaglikUygulamasi({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,8 +18,8 @@ class SaglikUygulamasi extends StatelessWidget {
       title: 'Sağlık Uygulaması',
       initialRoute: '/login',
       routes: {
-        '/login': (context) => LoginPage(),
-        '/register': (context) => RegisterPage(),
+        '/login': (context) => const LoginPage(),
+        '/register': (context) => const RegisterPage(),
       },
     );
   }

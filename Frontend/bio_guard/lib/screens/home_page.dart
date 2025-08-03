@@ -1,37 +1,70 @@
-import 'package:bio_guard/screens/lab_results_page.dart';
+import 'package:bio_guard/screens/health_datas_page.dart';
 import 'package:bio_guard/screens/profile_page.dart';
 import 'package:bio_guard/screens/symptom_entry_page.dart';
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart'; // fl_chart kütüphanesi için
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'health_datas_page.dart'; // json işlemleri için (gerçek API entegrasyonunda kullanılacak)
+import 'lab_results_page.dart';
 
-
-class HomePage extends StatefulWidget {
+class HomePageContent extends StatefulWidget {
+  const HomePageContent({super.key, required this.token});
   final String token;
-  const HomePage({super.key, required this.token});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePageContent> createState() => _HomePageContentState();
 }
 
-class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 2; // Ana Sayfa varsayılan olarak seçili (Bottom nav barda index 2 home)
-  String? firstName = "Rabia"; // Örnek olarak sabit isim
+class _HomePageContentState extends State<HomePageContent> {
+  int _selectedIndex = 2;
+  late List<Widget> _pages = [];
 
-  late List<Widget> _pages; // Sayfa listesi
+  String? _firstName;
 
   @override
   void initState() {
     super.initState();
+    _fetchFirstName();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _pages = [
       SymptomEntryPage(token: widget.token),
       HealthDatasPage(token: widget.token),
-      HomePageContent(token: widget.token, firstName: firstName),
+      HomePage(token: widget.token, firstName: _firstName),
       LabResultsPage(token: widget.token),
-      ProfilePage(token: widget.token),
+      ProfilePage(token: widget.token)
     ];
+  }
+
+  Future<void> _fetchFirstName() async {
+    try {
+      print('Fetching first name...');
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:8000/auth/me'),
+        headers: {
+          'Authorization': 'Bearer ${widget.token}',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('FirstName response status: ${response.statusCode}');
+      print('FirstName response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          _firstName = data['firstName'];
+        });
+        print('FirstName set to: $_firstName');
+      } else {
+        print('Failed to fetch first name: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('FirstName fetch error: $e');
+    }
   }
 
   void _onItemTapped(int index) {
@@ -42,161 +75,314 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    _pages = [
+      SymptomEntryPage(token: widget.token),
+      HealthDatasPage(token: widget.token),
+      HomePage(token: widget.token, firstName: _firstName),
+      LabResultsPage(token: widget.token),
+      ProfilePage(token: widget.token)
+    ];
+
     return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         selectedItemColor: Colors.blueAccent,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
+        unselectedItemColor: Colors.blueGrey,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.healing),
-            label: "Semptom",
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.health_and_safety),
-            label: "Sağlık Bilgilerim",
+            label: 'Şikayet',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Ana Sayfa",
+            icon: Icon(Icons.notes),
+            label: 'Sağlık Bilgilerim',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_filled,),
+            label: 'Anasayfa',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.note),
-            label: "Tahlil",
-
+            label: 'Tahlil',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            label: "Profil",
+            icon: Icon(Icons.person),
+            label: 'Profil',
           ),
         ],
+        type: BottomNavigationBarType.fixed,
       ),
     );
   }
 }
 
-// Ana Sayfa İçeriği
-class HomePageContent extends StatefulWidget {
-  const HomePageContent({super.key, required this.token, required this.firstName});
+
+class HomePage extends StatefulWidget {
   final String token;
   final String? firstName;
 
+  const HomePage({super.key, required this.token, this.firstName});
+
   @override
-  State<HomePageContent> createState() => _HomePageContentState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageContentState extends State<HomePageContent> {
+class _HomePageState extends State<HomePage> {
   final TextEditingController _tansiyonController = TextEditingController();
   final TextEditingController _sekerController = TextEditingController();
 
-  List<Map<String, String>> _currentAnalyses = [
-    {"tahlil": "Kolesterol", "sonuc": "190 mg/dL", "tarih": "2025-07-28"},
-    {"tahlil": "Kan Şekeri", "sonuc": "95 mg/dL", "tarih": "2025-07-27"},
-    {"tahlil": "Tansiyon", "sonuc": "120/80 mmHg", "tarih": "2025-07-27"},
-  ];
-
-  List<String> _ozelMesajlar = [
-    "Yeni reçeteniz eczaneden alınabilir.",
-    "Doktorunuz yeni bir kontrol randevusu önerdi."
-  ];
-
-  List<String> _bildirimler = [
-    "Kan şekeri ölçümü yapılmadı, lütfen ölçüm yapınız.",
-    "Son tansiyon değeriniz yüksek, dikkat!"
-  ];
+  List<Map<String, dynamic>> _labResults = [];
+  
+  // Son değerler için
+  Map<String, dynamic>? _lastTansiyon;
+  Map<String, dynamic>? _lastSeker;
 
   @override
-  void dispose() {
-    _tansiyonController.dispose();
-    _sekerController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _fetchLabResults();
   }
 
-  void _kaydetTansiyonSeker() {
-    String tansiyon = _tansiyonController.text.trim();
-    String seker = _sekerController.text.trim();
+  Future<void> _fetchLabResults() async {
+    try {
+      print('Tahlil verileri çekiliyor...');
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:8000/lab_results/lab_results'),
+        headers: {
+          'Authorization': 'Bearer ${widget.token}',
+          'Content-Type': 'application/json',
+        },
+      );
 
-    if (tansiyon.isEmpty && seker.isEmpty) {
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        print('Çekilen veri sayısı: ${data.length}');
+        setState(() {
+          _labResults = data.map((e) => e as Map<String, dynamic>).toList();
+        });
+        print('Lab results güncellendi: ${_labResults.length}');
+        _updateLastValues();
+      } else {
+        print('Hata status code: ${response.statusCode}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Tahlil verileri yüklenirken hata oluştu: ${response.statusCode}')),
+        );
+      }
+    } catch (e) {
+      print('Fetch hatası: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Lütfen en az bir değer giriniz.")),
+        SnackBar(content: Text('Tahlil verileri yüklenirken hata oluştu: $e')),
+      );
+    }
+  }
+
+  void _updateLastValues() {
+    print('Updating last values...');
+    
+    setState(() {
+      // Son tansiyon değerini bul
+      final tansiyonResults = _labResults.where((r) => 
+        r['test']?.toString().toLowerCase() == 'tansiyon'
+      ).toList();
+      
+      print('Tansiyon results found: ${tansiyonResults.length}');
+      
+      if (tansiyonResults.isNotEmpty) {
+        // Debug: Tüm tansiyon sonuçlarını yazdır
+        print('All tansiyon results:');
+        for (var result in tansiyonResults) {
+          print('  - ID: ${result['id']}, ${result['result']} ${result['unit']} on ${result['date']}');
+        }
+        
+        // ID'ye göre sırala (en yüksek ID en yeni)
+        tansiyonResults.sort((a, b) {
+          final idA = a['id'] as int? ?? 0;
+          final idB = b['id'] as int? ?? 0;
+          return idB.compareTo(idA); // En yüksek ID önce
+        });
+        
+        // Debug: Sıralama sonrası
+        print('After sorting tansiyon results:');
+        for (var result in tansiyonResults) {
+          print('  - ID: ${result['id']}, ${result['result']} ${result['unit']} on ${result['date']}');
+        }
+        
+        _lastTansiyon = tansiyonResults.first;
+        print('Last tansiyon set to: ID: ${_lastTansiyon!['id']}, ${_lastTansiyon!['result']} ${_lastTansiyon!['unit']} on ${_lastTansiyon!['date']}');
+      } else {
+        _lastTansiyon = null;
+        print('No tansiyon results found');
+      }
+
+      // Son şeker değerini bul
+      final sekerResults = _labResults.where((r) => 
+        r['test']?.toString().toLowerCase() == 'kan şekeri'
+      ).toList();
+      
+      print('Seker results found: ${sekerResults.length}');
+      
+      if (sekerResults.isNotEmpty) {
+        // Debug: Tüm şeker sonuçlarını yazdır
+        print('All seker results:');
+        for (var result in sekerResults) {
+          print('  - ID: ${result['id']}, ${result['result']} ${result['unit']} on ${result['date']}');
+        }
+        
+        // ID'ye göre sırala (en yüksek ID en yeni)
+        sekerResults.sort((a, b) {
+          final idA = a['id'] as int? ?? 0;
+          final idB = b['id'] as int? ?? 0;
+          return idB.compareTo(idA); // En yüksek ID önce
+        });
+        
+        // Debug: Sıralama sonrası
+        print('After sorting seker results:');
+        for (var result in sekerResults) {
+          print('  - ID: ${result['id']}, ${result['result']} ${result['unit']} on ${result['date']}');
+        }
+        
+        _lastSeker = sekerResults.first;
+        print('Last seker set to: ID: ${_lastSeker!['id']}, ${_lastSeker!['result']} ${_lastSeker!['unit']} on ${_lastSeker!['date']}');
+      } else {
+        _lastSeker = null;
+        print('No seker results found');
+      }
+    });
+  }
+
+  Future<void> _saveTansiyon() async {
+    final tansiyon = _tansiyonController.text.trim();
+
+    if (tansiyon.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Lütfen Tansiyon bilgisi giriniz')),
       );
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Tansiyon ve Şeker verileri kaydedildi.")),
-    );
+    final now = DateTime.now();
+    final currentDate = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+    print('Generated date: $currentDate');
 
-    _tansiyonController.clear();
-    _sekerController.clear();
+    try {
+      final tansiyonResult = double.tryParse(tansiyon) ?? 0.0;
+      
+      final tansiyonBody = jsonEncode({
+        'test': 'Tansiyon',
+        'result': tansiyonResult,
+        'unit': 'mmHg',
+        'date': currentDate,
+      });
+
+      print('Tansiyon kaydetme isteği gönderiliyor...');
+      print('Request body: $tansiyonBody');
+      print('Token: ${widget.token}');
+
+      final tansiyonResponse = await http.post(
+        Uri.parse('http://10.0.2.2:8000/lab_results/create'),
+        headers: {
+          'Authorization': 'Bearer ${widget.token}',
+          'Content-Type': 'application/json',
+        },
+        body: tansiyonBody,
+      );
+
+      print('Tansiyon response status: ${tansiyonResponse.statusCode}');
+      print('Tansiyon response body: ${tansiyonResponse.body}');
+
+      if (tansiyonResponse.statusCode == 200 || tansiyonResponse.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Tansiyon kaydedildi')),
+        );
+        _tansiyonController.clear();
+        await _fetchLabResults();
+      } else {
+        print('Tansiyon kaydetme hatası: ${tansiyonResponse.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Tansiyon kaydetme başarısız: ${tansiyonResponse.statusCode}')),
+        );
+      }
+    } catch (e) {
+      print('Tansiyon kaydetme hatası: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Tansiyon kaydetme başarısız: $e')),
+      );
+    }
   }
 
-  Widget _buildGraph() {
-    final List<FlSpot> dataPoints = [
-      FlSpot(0, 90),
-      FlSpot(1, 95),
-      FlSpot(2, 85),
-      FlSpot(3, 100),
-      FlSpot(4, 92),
-      FlSpot(5, 110),
-      FlSpot(6, 105),
-    ];
+  Future<void> _saveSeker() async {
+    final seker = _sekerController.text.trim();
 
-    return Container(
-      height: 180,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.blue[50],
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: LineChart(
-        LineChartData(
-          gridData: FlGridData(show: true, horizontalInterval: 10, verticalInterval: 1),
-          titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                interval: 1,
-                getTitlesWidget: (value, meta) {
-                  return Text('G${value.toInt() + 1}');
-                },
-              ),
-            ),
-            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, interval: 10)),
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          ),
-          borderData: FlBorderData(
-            show: true,
-            border: Border.all(color: Colors.grey),
-          ),
-          minX: 0,
-          maxX: 6,
-          minY: 70,
-          maxY: 120,
-          lineBarsData: [
-            LineChartBarData(
-              spots: dataPoints,
-              isCurved: true,
-              color: Colors.blueAccent,
-              barWidth: 3,
-              dotData: FlDotData(show: true),
-              belowBarData: BarAreaData(show: true, color: Colors.blueAccent.withOpacity(0.3)),
-            ),
-          ],
-        ),
-      ),
-    );
+    if (seker.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Lütfen Şeker bilgisi giriniz')),
+      );
+      return;
+    }
+
+    final now = DateTime.now();
+    final currentDate = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+    print('Generated date: $currentDate');
+
+    try {
+      final sekerResult = double.tryParse(seker) ?? 0.0;
+      
+      final sekerBody = jsonEncode({
+        'test': 'Kan Şekeri',
+        'result': sekerResult,
+        'unit': 'mg/dL',
+        'date': currentDate,
+      });
+
+      print('Şeker kaydetme isteği gönderiliyor...');
+      print('Request body: $sekerBody');
+      print('Token: ${widget.token}');
+
+      final sekerResponse = await http.post(
+        Uri.parse('http://10.0.2.2:8000/lab_results/create'),
+        headers: {
+          'Authorization': 'Bearer ${widget.token}',
+          'Content-Type': 'application/json',
+        },
+        body: sekerBody,
+      );
+
+      print('Şeker response status: ${sekerResponse.statusCode}');
+      print('Şeker response body: ${sekerResponse.body}');
+
+      if (sekerResponse.statusCode == 200 || sekerResponse.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Şeker kaydedildi')),
+        );
+        _sekerController.clear();
+        await _fetchLabResults();
+      } else {
+        print('Şeker kaydetme hatası: ${sekerResponse.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Şeker kaydetme başarısız: ${sekerResponse.statusCode}')),
+        );
+      }
+    } catch (e) {
+      print('Şeker kaydetme hatası: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Şeker kaydetme başarısız: $e')),
+      );
+    }
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Merhaba ${widget.firstName ?? ""}'),
+        title: Text(widget.firstName != null ? 'Merhaba ${widget.firstName}' : 'Merhaba'),
         backgroundColor: Colors.blue[600],
         titleTextStyle: const TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
         leading: const Icon(Icons.waving_hand_rounded, color: Colors.white, size: 25),
@@ -208,7 +394,171 @@ class _HomePageContentState extends State<HomePageContent> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "🩺 Tansiyon / Şeker Girişi",
+               "Tansiyon ve Şeker Girişi",
+               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+             ),
+             const SizedBox(height: 12),
+             
+             // Tansiyon Kutucuğu
+             Card(
+               elevation: 4,
+               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+               child: Padding(
+                 padding: const EdgeInsets.all(16.0),
+                 child: Column(
+                   crossAxisAlignment: CrossAxisAlignment.start,
+                   children: [
+                     Row(
+                        children: [
+                          Icon(Icons.monitor_heart, color: Colors.blue[700], size: 24),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Tansiyon",
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue[700]),
+                          ),
+                        ],
+                      ),
+                     const SizedBox(height: 12),
+                     
+                     // Son değer gösterimi
+                     if (_lastTansiyon != null)
+                                               Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.blue[50],
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.blue[200]!),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.history, color: Colors.blue[700], size: 16),
+                              const SizedBox(width: 8),
+                              Text(
+                                "Son değer: ${_lastTansiyon!['result']} ${_lastTansiyon!['unit']}",
+                                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue[700]),
+                              ),
+                             const Spacer(),
+                             Text(
+                               _lastTansiyon!['date'].toString().split('T')[0],
+                               style: const TextStyle(fontSize: 12, color: Colors.grey),
+                             ),
+                           ],
+                         ),
+                       ),
+                     
+                     const SizedBox(height: 12),
+                                           TextField(
+                        controller: _tansiyonController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: "Tansiyon (mmHg)",
+                          border: const OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.monitor_heart, color: Colors.blue[700]),
+                        ),
+                      ),
+                     const SizedBox(height: 12),
+                     Row(
+                       mainAxisAlignment: MainAxisAlignment.end,
+                       children: [
+                         ElevatedButton.icon(
+                            onPressed: _saveTansiyon,
+                            icon: const Icon(Icons.save, color: Colors.white),
+                            label: const Text("Kaydet", style: TextStyle(color: Colors.white)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue[700],
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            ),
+                          ),
+                       ],
+                     ),
+                   ],
+                 ),
+               ),
+             ),
+             
+             const SizedBox(height: 16),
+             
+             // Şeker Kutucuğu
+             Card(
+               elevation: 4,
+               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+               child: Padding(
+                 padding: const EdgeInsets.all(16.0),
+                 child: Column(
+                   crossAxisAlignment: CrossAxisAlignment.start,
+                   children: [
+                                           Row(
+                        children: [
+                          Icon(Icons.bloodtype, color: Colors.blue[600], size: 24),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Kan Şekeri",
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue[600]),
+                          ),
+                        ],
+                      ),
+                     const SizedBox(height: 12),
+                     
+                     // Son değer gösterimi
+                     if (_lastSeker != null)
+                                               Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.blue[50],
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.blue[200]!),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.history, color: Colors.blue[600], size: 16),
+                              const SizedBox(width: 8),
+                              Text(
+                                "Son değer: ${_lastSeker!['result']} ${_lastSeker!['unit']}",
+                                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue[600]),
+                              ),
+                             const Spacer(),
+                             Text(
+                               _lastSeker!['date'].toString().split('T')[0],
+                               style: const TextStyle(fontSize: 12, color: Colors.grey),
+                             ),
+                           ],
+                         ),
+                       ),
+                     
+                     const SizedBox(height: 12),
+                     TextField(
+                        controller: _sekerController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: "Kan Şekeri (mg/dL)",
+                          border: const OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.bloodtype, color: Colors.blue[600]),
+                        ),
+                      ),
+                     const SizedBox(height: 12),
+                     Row(
+                       mainAxisAlignment: MainAxisAlignment.end,
+                       children: [
+                                                   ElevatedButton.icon(
+                            onPressed: _saveSeker,
+                            icon: const Icon(Icons.save, color: Colors.white),
+                            label: const Text("Kaydet", style: TextStyle(color: Colors.white)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue[600],
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            ),
+                          ),
+                       ],
+                     ),
+                   ],
+                 ),
+               ),
+             ),
+            const SizedBox(height: 30),
+            const Text(
+              "Son Tahlil Verileri",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
             ),
             const SizedBox(height: 12),
@@ -217,112 +567,53 @@ class _HomePageContentState extends State<HomePageContent> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _tansiyonController,
-                            decoration: const InputDecoration(
-                              labelText: "Tansiyon (örn: 120/80)",
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.monitor_heart),
+                child: _labResults.isEmpty
+                    ? const Text('Henüz tahlil verisi bulunmamaktadır.')
+                    : Column(
+                        children: _labResults.take(5).map((result) {
+                          final testName = result['test'] ?? '';
+                          final testResult = result['result']?.toString() ?? '';
+                          final unit = result['unit'] ?? '';
+                          final date = result['date']?.toString().split('T')[0] ?? '';
+                          
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[50],
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.grey[300]!),
                             ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TextField(
-                            controller: _sekerController,
-                            decoration: const InputDecoration(
-                              labelText: "Kan Şekeri (mg/dL)",
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.bloodtype),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        testName,
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                      ),
+                                      Text(
+                                        '$testResult $unit',
+                                        style: const TextStyle(fontSize: 14, color: Colors.blueAccent),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Text(
+                                  date,
+                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                ),
+                              ],
                             ),
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton.icon(
-                        onPressed: _kaydetTansiyonSeker,
-                        icon: const Icon(Icons.save, color: Colors.white),
-                        label: const Text("Kaydet", style: TextStyle(color: Colors.white)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        ),
+                          );
+                        }).toList(),
                       ),
-                    ),
-                  ],
-                ),
               ),
             ),
-            const SizedBox(height: 30),
-
-            const Text(
-              "📋 Güncel Tahlil Sonuçları",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
-            ),
-            const SizedBox(height: 12),
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: _currentAnalyses.isEmpty
-                    ? const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text("Henüz kaydedilmiş tahlil sonucunuz bulunmamaktadır."),
-                )
-                    : ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _currentAnalyses.length,
-                  itemBuilder: (context, index) {
-                    final tahlil = _currentAnalyses[index];
-                    return ListTile(
-                      leading: const Icon(Icons.medical_services, color: Colors.blueAccent),
-                      title: Text(tahlil["tahlil"] ?? '', style: const TextStyle(fontWeight: FontWeight.w500)),
-                      subtitle: Text("Sonuç: ${tahlil["sonuc"]}, Tarih: ${tahlil["tarih"]}"),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-                      onTap: () {
-                        // Tahlil detay sayfasına gitme gibi bir aksiyon eklenebilir
-                      },
-                    );
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(height: 30),
-
-            const Text(
-              "📊 Sağlık Verileri Grafiği",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
-            ),
-            const SizedBox(height: 12),
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: _buildGraph(),
-              ),
-            ),
-
-            // Yeni eklenen Tahlil Girişi Başlığı
-            const SizedBox(height: 30),
-            const Text(
-              "➡️ Tüm Tahlillerime Git", // Yeni başlık
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
-            ),
-            const SizedBox(height: 12),
-
+            const SizedBox(height: 20),
             InkWell(
               onTap: () {
                 Navigator.push(
@@ -336,10 +627,10 @@ class _HomePageContentState extends State<HomePageContent> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.blueAccent.withOpacity(0.5)),
+                  border: Border.all(color: Colors.blueAccent),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.blueAccent.withOpacity(0.1),
+                      color: Colors.blueAccent,
                       spreadRadius: 2,
                       blurRadius: 5,
                       offset: const Offset(0, 3),
@@ -349,93 +640,16 @@ class _HomePageContentState extends State<HomePageContent> {
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("🧪 Tahlil Girişi Yap", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.blueAccent)),
+                    Text("Tahlil Girişi Yap", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.blueAccent)),
                     Icon(Icons.arrow_forward_ios, color: Colors.blueAccent, size: 20),
                   ],
                 ),
               ),
             ),
-
-            const SizedBox(height: 30),
-            const Text(
-              "📩 Özel Mesajlarınız",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
-            ),
-            const SizedBox(height: 12),
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: _ozelMesajlar.isEmpty
-                  ? const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text("Henüz yeni bir özel mesajınız yok."),
-              )
-                  : ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _ozelMesajlar.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                    margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.lightBlue[50],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(_ozelMesajlar[index]),
-                  );
-                },
-              ),
-            ),
-
-            const SizedBox(height: 30),
-            const Text(
-              "🔔 Önemli Bildirimler",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
-            ),
-            const SizedBox(height: 12),
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: _bildirimler.isEmpty
-                  ? const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text("Bugün için herhangi bir bildirim bulunmamaktadır."),
-              )
-                  : ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _bildirimler.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                    margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.orange[100],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(_bildirimler[index]),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
-
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        prefixIcon: Icon(icon),
-        labelText: label,
-        border: const OutlineInputBorder(),
-        filled: true,
-        fillColor: Colors.white,
-      ),
-    );
-  }
 }
+

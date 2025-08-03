@@ -12,7 +12,7 @@ app.include_router(allergy.router)
 app.include_router(symptom.router)
 app.include_router(medicine.router)
 app.include_router(complaint.router)
-#app.include_router(lab_result.router)
+app.include_router(lab_result.router)
 
 
 load_dotenv()

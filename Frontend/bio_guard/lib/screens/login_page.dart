@@ -116,8 +116,8 @@ class _LoginPageState extends State<LoginPage> {
                             final response = await http.post(
                               Uri.parse('http://10.0.2.2:8000/auth/login'),
                               body: {
-                                'username': _usernameController.text,
-                                'password': _passwordController.text,
+                                'username': _usernameController.text.trim(),
+                                'password': _passwordController.text.trim(),
                               },
                             );
 
@@ -126,12 +126,12 @@ class _LoginPageState extends State<LoginPage> {
                               final token = data['access_token'];
                               Navigator.pushReplacement(
                                 context,
-                                MaterialPageRoute(builder: (context) => HomePage(token: token)),
+                                MaterialPageRoute(builder: (context) => HomePageContent(token: token)),
                               );
                             } else {
                               // Giriş başarısız
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Kullanıcı adı veya şifre yanlış!')),
+                                const SnackBar(content: Text('Kullanıcı adı veya şifre yanlış!')),
                               );
                             }
                           }
@@ -147,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => PasswordResetPage()),
+                          MaterialPageRoute(builder: (context) => const PasswordResetPage()),
                         );
                       },
                       child: const Text('Şifremi unuttum'),
@@ -157,7 +157,7 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => RegisterPage()),
+                          MaterialPageRoute(builder: (context) => const RegisterPage()),
                         );
                       },
                       child: const Text('Hesabınız yok mu? Kayıt olun'),
